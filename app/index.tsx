@@ -8,7 +8,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { Image } from "expo-image";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function App() {
