@@ -10,21 +10,32 @@ export default function Tabla() {
   return (
     <View style={styles.container}>
         <View style={styles.centro}>
-            <Text style={styles.titulo}>
-            Tabla de compras en maquinas expendedoras
-            </Text>
-            <FlatList
+          <View style={styles.tablaContainer}>
+              <Text style={styles.titulo}>
+              Tabla de compras en maquinas expendedoras
+              </Text>
+              <FlatList
                 style={styles.tabla}
                 data={personas}
                 keyExtractor={(persona) => persona.nombre}
                 renderItem={({ item: persona }) => (
-                <View>
-                    <Text style={styles.textoLista}>
-                    {persona.posicion+'°'} {persona.puntuacion+'pts'} {persona.nombre} {'$'+ persona.dineroGastado}
-                    </Text>
+                <View style={styles.listaRowContainer}>
+                  <Text style={styles.textoPosicionLista}>
+                    {persona.posicion+'°'}
+                  </Text>
+                  <Text style={styles.textoPuntuacionLista}>
+                    {persona.puntuacion+'pts'} 
+                  </Text>
+                  <Text style={styles.textoNombreLista}>
+                    {persona.nombre}
+                  </Text>
+                  <Text style={styles.textoDineroGastadoLista}>
+                    {'$'+ persona.dineroGastado}
+                  </Text>
                 </View>
             )}
             />
+          </View>
         </View>
     </View>
   );
@@ -38,21 +49,50 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   centro: {
-    alignItems: "center",     // alinea el título + lista en el centro horizontal
+    // alinea el título + lista en el centro horizontal
     gap: 10,
   },
   titulo: {
-    marginBottom: 10,
+    color: "white",
+    margin: 20,
     fontWeight: "bold",
+    fontSize: 20,
     textAlign: "center",
   },    
-  tabla: {
+  tablaContainer: {
     backgroundColor: "#2196f3",
-    padding: 10,
+    padding: 25,
     borderRadius: 10,
+    width: 300,
   },
-  textoLista: {
+  tabla: {
+    //Flatlist
+  }, 
+  listaRowContainer: {
+    flexDirection: "row",     // fila
+    borderColor: "white",
+    borderWidth: 1,
+    padding: 10,
+  },
+
+  textoPosicionLista: {
     color: "white",
-    fontWeight: "bold",
-  }
+    flex: 1,                  // todas las columnas ocupan el mismo espacio
+    textAlign: "center",
+  },
+  textoPuntuacionLista: {
+    color: "white",
+    flex: 1,
+    textAlign: "center",
+  },
+  textoNombreLista: {
+    color: "white",
+    flex: 1,
+    textAlign: "center",
+  },
+  textoDineroGastadoLista: {
+    color: "white",
+    flex: 1,
+    textAlign: "center",
+  },
 });
