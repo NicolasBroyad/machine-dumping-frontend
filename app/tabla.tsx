@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196f3",
     padding: 25,
     borderRadius: 10,
-    width: 300,
+    width: 400,
   },
   tabla: {
     //Flatlist
@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",     // fila
     borderColor: "white",
     borderWidth: 1,
-    padding: 10,
     fontWeight: "bold",
     backgroundColor: "#1976d2",
   },
@@ -87,27 +86,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",     // fila
     borderColor: "white",
     borderWidth: 1,
-    padding: 10,
   },
 
   textoPosicionLista: {
     color: "white",
     flex: 1,                  // todas las columnas ocupan el mismo espacio
     textAlign: "center",
+    borderRightWidth: 1,
+    borderRightColor: "white",
+    padding: 10,
   },
   textoPuntuacionLista: {
     color: "white",
     flex: 1,
     textAlign: "center",
+    borderRightWidth: 1,
+    borderRightColor: "white",
+    padding: 10,
   },
   textoNombreLista: {
     color: "white",
     flex: 1,
     textAlign: "center",
+    borderRightWidth: 1,
+    borderRightColor: "white",
+    padding: 10,
   },
   textoDineroGastadoLista: {
     color: "white",
     flex: 1,
     textAlign: "center",
+    padding: 10,
   },
 });
