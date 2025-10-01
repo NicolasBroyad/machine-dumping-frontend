@@ -15,6 +15,12 @@ export default function Tabla() {
               <Text style={styles.titulo}>
               Tabla de compras en maquinas expendedoras
               </Text>
+              <View style={styles.tablaHeaderContainer}>
+                <Text style={styles.textoPosicionLista}>Pos</Text>
+                <Text style={styles.textoPuntuacionLista}>Pts</Text>
+                <Text style={styles.textoNombreLista}>Nombre</Text>
+                <Text style={styles.textoDineroGastadoLista}>Gastado</Text>
+              </View>
               <FlatList
                 style={styles.tabla}
                 data={personas}
@@ -69,6 +75,14 @@ const styles = StyleSheet.create({
   tabla: {
     //Flatlist
   }, 
+  tablaHeaderContainer: {
+    flexDirection: "row",     // fila
+    borderColor: "white",
+    borderWidth: 1,
+    padding: 10,
+    fontWeight: "bold",
+    backgroundColor: "#1976d2",
+  },
   listaRowContainer: {
     flexDirection: "row",     // fila
     borderColor: "white",
