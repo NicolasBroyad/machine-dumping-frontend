@@ -1,27 +1,27 @@
 import React from "react";
 
 export type PerfilType = {
-  nombre: string;
-  foto: string;
+  name: string;
+  picture: string;
 };
 
 export function usePerfil() {
-  const [perfil, setPerfil] = React.useState<PerfilType>({
-    nombre: "Nombre y apellido",
-    foto: "https://upload.wikimedia.org/wikipedia/en/7/73/Trollface.png",
+  const [profile, setProfile] = React.useState<PerfilType>({
+    name: "Nombre y apellido",
+    picture: "https://upload.wikimedia.org/wikipedia/en/7/73/Trollface.png",
   });
 
-  const actualizarNombre = (nombre: string) => {
-    setPerfil({ ...perfil, nombre });
+  const updateName = (name: string) => {
+    setProfile({ ...profile, name });
   };
 
-  const actualizarFoto = (foto: string) => {
-    setPerfil({ ...perfil, foto });
+  const updatePicture = (picture: string) => {
+    setProfile({ ...profile, picture });
   };
 
   return {
-    perfil,
-    actualizarNombre,
-    actualizarFoto,
+    profile,
+    updateName,
+    updatePicture,
   };
 }

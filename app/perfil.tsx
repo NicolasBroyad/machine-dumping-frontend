@@ -8,7 +8,7 @@ import { usePerfil } from "../componentes/usePerfil";
 type ItemProps = { dato: string };
 
 export default function Perfil() {
-  const { perfil, actualizarNombre, actualizarFoto } = usePerfil();
+  const { profile, updateName, updatePicture } = usePerfil();
 
   const lista = [
     { id: "1", nombre: "Mis datos" },
@@ -34,8 +34,8 @@ export default function Perfil() {
   return (
     <View style={styles.container}>
       <View style={styles.firstContainer}>
-        <Image style={styles.profilePicture} source={{ uri: perfil.foto }} />
-        <Text style={styles.name}>{perfil.nombre}</Text>
+        <Image style={styles.profilePicture} source={{ uri: profile.picture }} />
+        <Text style={styles.name}>{profile.name}</Text>
       </View>
 
       <View style={styles.secondContainer}>
@@ -56,15 +56,15 @@ export default function Perfil() {
             <TextInput
               style={styles.input}
               placeholder="Nombre y apellido"
-              value={perfil.nombre}
-              onChangeText={actualizarNombre}
+              value={profile.name}
+              onChangeText={updateName}
             />
 
             <TextInput
               style={styles.input}
               placeholder="URL de la foto"
-              value={perfil.foto}
-              onChangeText={actualizarFoto}
+              value={profile.picture}
+              onChangeText={updatePicture}
             />
 
             <Button title="Guardar" onPress={() => setModalVisible(false)} />
@@ -76,7 +76,12 @@ export default function Perfil() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center" },
+
+  container: { 
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center" 
+  },
   firstContainer: {
     flex: 1,
     flexDirection: "row",
@@ -90,25 +95,45 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     paddingLeft: 20,
   },
-  profilePicture: { width: 128, height: 128, borderRadius: 64 },
-  name: { fontSize: 24, fontWeight: "bold" },
+  profilePicture: { 
+    width: 128, 
+    height: 128, 
+    borderRadius: 64 
+  },
+  name: { 
+    fontSize: 24, 
+    fontWeight: "bold" 
+  },
   item: {
     backgroundColor: "#2196f3",
     padding: 20,
     marginVertical: 8,
     borderRadius: 10,
   },
-  dato: { fontSize: 18, color: "white", fontWeight: "bold" },
+  dato: { 
+    fontSize: 18, 
+    color: "white", 
+    fontWeight: "bold" 
+  },
   modalContainer: {
-    flex: 1, justifyContent: "center", alignItems: "center",
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    width: "80%", backgroundColor: "white",
-    borderRadius: 10, padding: 20, alignItems: "center",
+    width: "80%", 
+    backgroundColor: "white",
+    borderRadius: 10, 
+    padding: 20, 
+    alignItems: "center",
   },
   input: {
-    width: "100%", borderWidth: 1, borderColor: "#ccc",
-    padding: 10, marginVertical: 10, borderRadius: 8,
+    width: "100%", 
+    borderWidth: 1, 
+    borderColor: "#ccc",
+    padding: 10,
+    marginVertical: 10, 
+    borderRadius: 8,
   },
 });
