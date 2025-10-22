@@ -1,50 +1,204 @@
-# Welcome to your Expo app 👋
+# Machine Dumping App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación full-stack con backend Node.js + Express + Prisma y frontend React Native + Expo que muestra un ranking de usuarios por dinero gastado.
 
-## Get started
+## Requisitos
 
-1. Install dependencies
+- **Node.js** v18 o v20 (recomendado)
+- **npm** o **yarn**
+- **Git**
+- **Expo Go** app en tu móvil (opcional, para probar en dispositivo físico)
 
-   ```bash
-   npm install
-   ```
+## Instalación y Ejecución
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Clonar el repositorio
 
 ```bash
-npm run reset-project
+git clone https://github.com/NicolasBroyad/machine-dumping-backend.git
+cd machine-dumping-backend
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Backend (Terminal 1)
 
-## Learn more
+```bash
+# Ir a la carpeta del backend
+cd machine-dumping-backend
 
-To learn more about developing your project with Expo, look at the following resources:
+# Instalar dependencias
+npm install
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Generar Prisma Client
+npx prisma generate
 
-## Join the community
+# Aplicar migraciones (crea la base de datos SQLite)
+npx prisma migrate dev --name init
 
-Join our community of developers creating universal apps.
+# Poblar la base de datos con datos de ejemplo
+npm run seed
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Iniciar el servidor
+npm start
+```
+
+ El backend estará corriendo en **http://localhost:3000**
+
+Verifica que funciona:
+```bash
+curl http://localhost:3000/ranking
+```
+
+### Frontend (Terminal 2 - nueva terminal)
+
+```bash
+# Ir a la carpeta del frontend
+cd machine-dumping-frontend
+
+# Instalar dependencias
+npm install
+
+# Iniciar Expo
+npm start
+```
+
+Luego:
+- Presiona **`a`** para Android emulator
+- Presiona **`i`** para iOS simulator
+- Escanea el QR con Expo Go desde tu móvil
+
+## Configuración según tu dispositivo
+
+### Android Emulator
+ Ya configurado. Usa `http://10.0.2.2:3000` automáticamente.
+
+### iOS Simulator
+ Ya configurado. Usa `http://localhost:3000` automáticamente.
+
+### Dispositivo físico (Expo Go)
+1. Obtén tu IP local:
+   ```bash
+   # Linux/Mac
+   hostname -I | awk '{print $1}'
+   
+   # Windows
+   ipconfig
+   ```
+
+2. Edita `machine-dumping-frontend/app/ranking.tsx` línea ~17:
+   ```typescript
+   const BASE_URL = 'http://TU_IP_AQUI:3000';
+   ```
+   Ejemplo: `const BASE_URL = 'http://192.168.1.42:3000';`
+
+## Estructura del proyecto
+
+```
+machine-dumping-app/
+├── machine-dumping-backend/     # Backend (Node.js + Express + Prisma)
+│   ├── index.js                 # Servidor principal
+│   ├── prisma/
+│   │   ├── schema.prisma        # Esquema de base de datos
+│   │   ├── seed.js              # Datos de ejemplo
+│   │   └── dev.db               # Base de datos SQLite
+│   └── package.json
+│
+└── machine-dumping-frontend/    # Frontend (React Native + Expo)
+    ├── app/
+    │   ├── _layout.tsx          # Layout con tabs
+    │   ├── index.tsx            # Pantalla de escaneo
+    │   ├── ranking.tsx          # Pantalla de ranking
+    │   └── perfil.tsx           # Pantalla de perfil
+    └── package.json
+```
+
+## Endpoints del Backend
+
+- **GET** `/ranking` - Devuelve usuarios ordenados por dinero gastado
+- **POST** `/usuarios` - Crea un nuevo usuario
+  ```json
+  { "nombre": "Juan", "email": "juan@example.com" }
+  ```
+- **POST** `/productos` - Crea un nuevo producto
+  ```json
+  { "codigoBarra": "123", "nombre": "Producto X", "precio": 50 }
+  ```
+- **POST** `/escaneos` - Registra un escaneo
+  ```json
+  { "usuarioId": 1, "productoId": 1 }
+  ```
+
+## 🔧 Comandos útiles
+
+### Backend
+```bash
+# Ver/editar base de datos con interfaz visual
+npx prisma studio
+
+# Regenerar cliente de Prisma (si cambias schema.prisma)
+npx prisma generate
+
+# Resetear base de datos y volver a poblarla
+npx prisma migrate reset
+npm run seed
+
+# Ver logs del servidor
+npm start
+```
+
+### Frontend
+```bash
+# Limpiar caché de Expo
+npx expo start -c
+
+# Instalar dependencias de iOS (solo Mac)
+cd ios && pod install && cd ..
+```
+
+## Solución de problemas
+
+### Error: "Cannot find module '.prisma/client'"
+```bash
+cd machine-dumping-backend
+npx prisma generate
+```
+
+### Error: "Network Error" en la app
+- Verifica que el backend esté corriendo (`npm start` en backend)
+- Verifica la URL según tu entorno (ver sección "Configuración según tu dispositivo")
+- Verifica que el puerto 3000 no esté bloqueado por firewall
+
+### Error: "Database ... does not exist"
+```bash
+cd machine-dumping-backend
+npx prisma migrate dev --name init
+```
+
+### La tabla aparece vacía
+```bash
+cd machine-dumping-backend
+npm run seed
+```
+
+## 🛠️ Tecnologías utilizadas
+
+**Backend:**
+- Node.js
+- Express
+- Prisma ORM
+- SQLite
+
+**Frontend:**
+- React Native
+- Expo
+- TypeScript
+- Expo Router
+
+## 📝 Notas
+
+- El backend usa SQLite, no necesita configuración adicional de base de datos
+- Los datos de ejemplo incluyen 10 usuarios con diferentes gastos
+- El ranking se actualiza automáticamente al abrir la pantalla
+- CORS está habilitado para desarrollo
+
+## 👤 Autor
+
+Nicolás Broyad, Tomas Espionosa, Mateo de la Fuente
