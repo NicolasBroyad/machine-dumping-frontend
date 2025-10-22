@@ -13,7 +13,7 @@ export default function Tabla() {
         <View style={styles.centro}>
           <View style={styles.tablaContainer}>
               <Text style={styles.titulo}>
-              Tabla de compras en maquinas expendedoras
+              Ranking
               </Text>
               <View style={styles.tablaHeaderContainer}>
                 <Text style={styles.textoPosicionLista}>Pos</Text>
