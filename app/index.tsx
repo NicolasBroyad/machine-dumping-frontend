@@ -9,7 +9,7 @@ import {
 } from "expo-camera";
 import { Image } from "expo-image";
 import React, { useRef, useState } from "react";
-import { Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -29,7 +29,15 @@ export default function App() {
         <Text style={{ textAlign: "center" }}>
           Necesitamos tu permiso para usar la camara
         </Text>
-        <Button onPress={requestPermission} title="Conceder permiso" />
+        <Pressable
+          style={({ pressed }) => [
+            styles.permissionButton,
+            { opacity: pressed ? 0.7 : 1 }
+          ]}
+          onPress={requestPermission}
+        >
+          <Text style={styles.permissionButtonText}>Conceder permiso</Text>
+        </Pressable>
       </View>
     );
   }
@@ -66,7 +74,15 @@ export default function App() {
           contentFit="contain"
           style={{ width: 300, aspectRatio: 1 }}
         />
-        <Button onPress={() => setUri(null)} title="Toma otra foto" />
+        <Pressable
+          style={({ pressed }) => [
+            styles.retakeButton,
+            { opacity: pressed ? 0.7 : 1 }
+          ]}
+          onPress={() => setUri(null)}
+        >
+          <Text style={styles.retakeButtonText}>Tomar otra foto</Text>
+        </Pressable>
       </View>
     );
   };
@@ -83,7 +99,10 @@ export default function App() {
           responsiveOrientationWhenOrientationLocked
         />
         <View style={styles.shutterContainer}>
-          <Pressable onPress={toggleMode}>
+          <Pressable 
+            onPress={toggleMode}
+            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+          >
             {mode === "picture" ? (
               <AntDesign name="picture" size={32} color="white" />
             ) : (
@@ -111,7 +130,10 @@ export default function App() {
               </View>
             )}
           </Pressable>
-          <Pressable onPress={toggleFacing}>
+          <Pressable 
+            onPress={toggleFacing}
+            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+          >
             <FontAwesome6 name="rotate-left" size={32} color="white" />
           </Pressable>
         </View>
@@ -159,5 +181,30 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 50,
+  },
+  permissionButton: {
+    backgroundColor: "#2196f3",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  permissionButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  retakeButton: {
+    backgroundColor: "#2196f3",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 20,
+    alignSelf: "center",
+  },
+  retakeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

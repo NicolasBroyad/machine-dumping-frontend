@@ -1,8 +1,9 @@
 import React from "react";
 import {
-  Button, FlatList, Image, Modal, Pressable,
+  FlatList, Image, Modal, Pressable,
   StyleSheet, Text, TextInput, View
 } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { usePerfil } from "../componentes/usePerfil";
 
 type ItemProps = { dato: string };
@@ -25,17 +26,64 @@ export default function Perfil() {
     }
   };
 
-  const Item = ({ dato }: ItemProps) => (
-    <Pressable style={styles.item} onPress={() => handlePress(dato)}>
-      <Text style={styles.dato}>{dato}</Text>
-    </Pressable>
-  );
+  const Item = ({ dato }: ItemProps) => {
+    // Cada item tiene su propia animación
+    const scale = useSharedValue(1);
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ scale: scale.value }],
+        opacity: scale.value
+      }
+    });
+
+    return (
+      <Pressable 
+        onPressIn={() => {
+          scale.value = withSpring(0.9);
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1);
+        }}
+        onPress={() => handlePress(dato)}
+      >
+        <Animated.View style={[styles.item, animatedStyle]}>
+          <Text style={styles.dato}>{dato}</Text>
+        </Animated.View>
+      </Pressable>
+    );
+  };
+
+  const SaveButton = ({ onPress }: { onPress: () => void }) => {
+    const scale = useSharedValue(1);
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ scale: scale.value }],
+        opacity: scale.value
+      }
+    });
+
+    return (
+      <Pressable 
+        onPressIn={() => {
+          scale.value = withSpring(0.9);
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1);
+        }}
+        onPress={onPress}
+      >
+        <Animated.View style={[styles.saveButton, animatedStyle]}>
+          <Text style={styles.saveButtonText}>Guardar</Text>
+        </Animated.View>
+      </Pressable>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.firstContainer}>
         <Image style={styles.profilePicture} source={{ uri: profile.picture }} />
-        <Text style={styles.name}>{profile.name}</Text>
+        <Text style={styles.name}>{profile.name}</Text> 
       </View>
 
       <View style={styles.secondContainer}>
@@ -45,6 +93,7 @@ export default function Perfil() {
           keyExtractor={(item) => item.id}
         />
       </View>
+      
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
@@ -67,7 +116,7 @@ export default function Perfil() {
               onChangeText={updatePicture}
             />
 
-            <Button title="Guardar" onPress={() => setModalVisible(false)} />
+            <SaveButton onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
@@ -105,10 +154,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold" 
   },
   item: {
-    backgroundColor: "#2196f3",
     padding: 20,
     marginVertical: 8,
     borderRadius: 10,
+    backgroundColor: "#2196f3",
   },
   dato: { 
     fontSize: 18, 
@@ -135,5 +184,19 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10, 
     borderRadius: 8,
+  },
+  saveButton: {
+    backgroundColor: "#2196f3",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
