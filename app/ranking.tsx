@@ -1,19 +1,52 @@
-import React from 'react';
-import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View, Image, ActivityIndicator, Platform } from 'react-native';
+
+type Persona = {
+  posicion: number;
+  puntuacion: number;
+  nombre: string;
+  dineroGastado: number;
+};
 
 export default function Tabla() {
-  const personas = [
-    { posicion: 1, puntuacion: 5, nombre: "Matute", dineroGastado: 200 },
-    { posicion: 2, puntuacion: 3, nombre: "Nico", dineroGastado: 150 },
-    { posicion: 3, puntuacion: 4, nombre: "Santi", dineroGastado: 100 },
-    { posicion: 4, puntuacion: 2, nombre: "Juani", dineroGastado: 80 },
-    { posicion: 5, puntuacion: 1, nombre: "Lucho", dineroGastado: 50 },
-    { posicion: 6, puntuacion: 0, nombre: "Ana", dineroGastado: 30 },
-    { posicion: 7, puntuacion: 0, nombre: "Carlos", dineroGastado: 20 },
-    { posicion: 8, puntuacion: 0, nombre: "Laura", dineroGastado: 10 },
-    { posicion: 9, puntuacion: 0, nombre: "Diego", dineroGastado: 5 },
-    { posicion: 10, puntuacion: 0, nombre: "Marta", dineroGastado: 2 },
-  ];
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Cambia la URL según tu entorno:
+    // - Android emulator: 10.0.2.2
+    // - iOS simulator / web: localhost
+    // - Dispositivo físico: reemplaza con tu IP local (ej: 192.168.1.42)
+    const BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+    
+    const fetchRanking = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${BASE_URL}/ranking`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        
+        // Mapear respuesta del backend a formato de la UI
+        const mapped = (data as any[]).map((u: any, i: number): Persona => ({
+          posicion: i + 1,
+          puntuacion: 0, // Por ahora no usamos puntuación
+          nombre: u.nombre,
+          dineroGastado: u.totalGastado,
+        }));
+        
+        setPersonas(mapped);
+      } catch (err) {
+        const e: any = err;
+        setError(e?.message || 'Error fetching ranking');
+        console.error('Fetch ranking error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -34,34 +67,49 @@ export default function Tabla() {
                   <Text style={[styles.textoNombreLista, styles.textoHeaderTabla]}>Nombre</Text>
                   <Text style={[styles.textoDineroGastadoLista, styles.textoHeaderTabla]}>Gastado</Text>
                 </View>
-                <FlatList
-                  style={styles.flatList}
-                  contentContainerStyle={{ flexGrow: 1 }}
-                  data={personas}
-                  keyExtractor={(persona) => persona.nombre}
-                  renderItem={({ item: persona, index }) => {
-                    const isLast = index === personas.length - 1;
-                    const isFirst = index === 0;
-                    const isSecond = index === 1;
-                    const isThird = index === 2;
-                    return (
-                      <View style={[styles.listaRowContainer, isLast && styles.lastRow, isFirst && styles.firstRow]}>
-                        <Text style={[styles.textoPosicionLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
-                          {persona.posicion + '°'}
-                        </Text>
-                        <Text style={[styles.textoPuntuacionLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
-                          {persona.puntuacion + 'pts'} 
-                        </Text>
-                        <Text style={[styles.textoNombreLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
-                          {persona.nombre}
-                        </Text>
-                        <Text style={[styles.textoDineroGastadoLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
-                          {'$' + persona.dineroGastado}
-                        </Text>
-                      </View>
-                    );
-                  }}
-                />
+
+                {loading ? (
+                  <View style={{ padding: 20, alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#fff" />
+                    <Text style={{ color: 'white', marginTop: 10 }}>Cargando ranking...</Text>
+                  </View>
+                ) : error ? (
+                  <View style={{ padding: 20, alignItems: 'center' }}>
+                    <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text>
+                    <Text style={{ color: 'white', marginTop: 10, fontSize: 12 }}>
+                      Verifica que el backend esté corriendo en el puerto 3000
+                    </Text>
+                  </View>
+                ) : (
+                  <FlatList
+                    style={styles.flatList}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    data={personas}
+                    keyExtractor={(persona) => persona.nombre}
+                    renderItem={({ item: persona, index }) => {
+                      const isLast = index === personas.length - 1;
+                      const isFirst = index === 0;
+                      const isSecond = index === 1;
+                      const isThird = index === 2;
+                      return (
+                        <View style={[styles.listaRowContainer, isLast && styles.lastRow, isFirst && styles.firstRow]}>
+                          <Text style={[styles.textoPosicionLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
+                            {persona.posicion + '°'}
+                          </Text>
+                          <Text style={[styles.textoPuntuacionLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
+                            {persona.puntuacion + 'pts'} 
+                          </Text>
+                          <Text style={[styles.textoNombreLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
+                            {persona.nombre}
+                          </Text>
+                          <Text style={[styles.textoDineroGastadoLista, isFirst && styles.firstText, isSecond && styles.secondText, isThird && styles.thirdText]}>
+                            {'$' + persona.dineroGastado}
+                          </Text>
+                        </View>
+                      );
+                    }}
+                  />
+                )}
               </View>
 
           </View>
