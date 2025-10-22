@@ -4,7 +4,7 @@ import { Image, StyleSheet } from 'react-native';
 
 export default function TabsLayout() {
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="ranking"
         options={{
