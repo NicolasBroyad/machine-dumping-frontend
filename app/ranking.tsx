@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 32,
     textAlign: "center",
+    marginTop: 40,
   },    
   tablaContainer: {
     backgroundColor: "#03213aff",
