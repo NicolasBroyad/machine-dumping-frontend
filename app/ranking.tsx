@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View, Image, ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, Text, View } from 'react-native';
 
 type Persona = {
   posicion: number;
