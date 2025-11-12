@@ -8,13 +8,13 @@ interface RegisterModalProps {
 }
 
 export default function RegisterModal({ visible, onClose, onSuccess }: RegisterModalProps) {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
+    if (!username || !email || !password) {
       Alert.alert("Error", "Por favor completa todos los campos");
       return;
     }
@@ -25,10 +25,10 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ username: username, email, password})
       });
 
       const data = await response.json();
@@ -36,7 +36,7 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
       if (response.ok) {
         Alert.alert("Éxito", "Cuenta creada correctamente");
         // Limpiar campos
-        setName("");
+        setUsername("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
@@ -61,8 +61,8 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
             style={styles.input}
             placeholder="Nombre completo"
             placeholderTextColor="#999"
-            value={name}
-            onChangeText={setName}
+            value={username}
+            onChangeText={setUsername}
           />
 
           <TextInput
