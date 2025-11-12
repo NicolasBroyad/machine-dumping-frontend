@@ -12,6 +12,7 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState<number>(1); // 1 = Cliente por defecto
 
   const handleRegister = async () => {
     if (!username || !email || !password) {
@@ -28,7 +29,12 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: username, email, password })
+        body: JSON.stringify({ 
+          name: username, 
+          email, 
+          password,
+          id_role: selectedRole 
+        })
       });
 
       const data = await response.json();
@@ -40,6 +46,7 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
         setEmail("");
         setPassword("");
         setConfirmPassword("");
+        setSelectedRole(1);
         onClose();
         onSuccess();
       } else {
@@ -74,6 +81,42 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
             value={email}
             onChangeText={setEmail}
           />
+
+          {/* Selector de Rol */}
+          <View style={styles.roleContainer}>
+            <Text style={styles.roleLabel}>Selecciona tu rol:</Text>
+            <View style={styles.roleButtons}>
+              <Pressable 
+                style={[
+                  styles.roleButton, 
+                  selectedRole === 1 && styles.roleButtonSelected
+                ]}
+                onPress={() => setSelectedRole(1)}
+              >
+                <Text style={[
+                  styles.roleButtonText,
+                  selectedRole === 1 && styles.roleButtonTextSelected
+                ]}>
+                  👤 Soy Cliente
+                </Text>
+              </Pressable>
+
+              <Pressable 
+                style={[
+                  styles.roleButton, 
+                  selectedRole === 2 && styles.roleButtonSelected
+                ]}
+                onPress={() => setSelectedRole(2)}
+              >
+                <Text style={[
+                  styles.roleButtonText,
+                  selectedRole === 2 && styles.roleButtonTextSelected
+                ]}>
+                  🏪 Soy Vendedor
+                </Text>
+              </Pressable>
+            </View>
+          </View>
 
           <TextInput
             style={styles.input}
@@ -170,5 +213,44 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#666',
     fontWeight: '600',
+  },
+  roleContainer: {
+    width: '100%',
+    marginVertical: 12,
+  },
+  roleLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  roleButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  roleButton: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  roleButtonSelected: {
+    backgroundColor: '#e3f2fd',
+    borderColor: '#2e6ef7',
+  },
+  roleButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
+  },
+  roleButtonTextSelected: {
+    color: '#2e6ef7',
   },
 });
