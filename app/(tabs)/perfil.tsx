@@ -1,28 +1,91 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList, Image, Modal, Pressable,
-  StyleSheet, Text, TextInput, View
+  StyleSheet, Text, TextInput, View, Alert, ActivityIndicator
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import { usePerfil } from "../../componentes/usePerfil";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from "expo-router";
 
 type ItemProps = { dato: string };
 
+interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+}
+
 export default function Perfil() {
-  const { profile, updateName, updatePicture } = usePerfil();
+  const router = useRouter();
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [nuevoNombre, setNuevoNombre] = useState("");
+
+  useEffect(() => {
+    cargarPerfil();
+  }, []);
+
+  const cargarPerfil = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      
+      if (!token) {
+        Alert.alert("Error", "No hay sesión activa");
+        router.replace('/');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/api/auth/perfil', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsuario(data);
+        setNuevoNombre(data.nombre);
+      } else {
+        Alert.alert("Error", "No se pudo cargar el perfil");
+        if (response.status === 401) {
+          // Token expirado o inválido
+          await AsyncStorage.removeItem('token');
+          await AsyncStorage.removeItem('usuario');
+          router.replace('/');
+        }
+      }
+    } catch (error) {
+      console.error("Error al cargar perfil:", error);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cerrarSesion = async () => {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('usuario');
+    Alert.alert("Sesión cerrada", "Has cerrado sesión exitosamente");
+    router.replace('/');
+  };
 
   const lista = [
     { id: "1", nombre: "Mis datos" },
     { id: "2", nombre: "Mis torneos" },
     { id: "3", nombre: "Mis logros" },
     { id: "4", nombre: "Plata consumida hasta ahora" },
+    { id: "5", nombre: "Cerrar sesión" },
   ];
-
-  const [modalVisible, setModalVisible] = React.useState<boolean>(false);
 
   const handlePress = (dato: string) => {
     if (dato === "Mis datos") {
       setModalVisible(true);
+    } else if (dato === "Cerrar sesión") {
+      cerrarSesion();
     }
   };
 
@@ -78,11 +141,30 @@ export default function Perfil() {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <Text style={{ color: '#fff', fontSize: 18 }}>Cargando perfil...</Text>
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center' }]}>
+        <Text style={{ color: '#fff', fontSize: 18 }}>No se pudo cargar el perfil</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.firstContainer}>
-        <Image style={styles.profilePicture} source={{ uri: profile.picture }} />
-        <Text style={styles.name}>{profile.name}</Text> 
+        <Image 
+          style={styles.profilePicture} 
+          source={{ uri: 'https://via.placeholder.com/150' }} 
+        />
+        <Text style={styles.name}>{usuario.nombre}</Text> 
       </View>
 
       <View style={styles.secondContainer}>
@@ -103,16 +185,9 @@ export default function Perfil() {
 
             <TextInput
               style={styles.input}
-              placeholder="Nombre y apellido"
-              value={profile.name}
-              onChangeText={updateName}
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="URL de la foto"
-              value={profile.picture}
-              onChangeText={updatePicture}
+              placeholder="Nombre de usuario"
+              value={nuevoNombre}
+              onChangeText={setNuevoNombre}
             />
 
             <SaveButton onPress={() => setModalVisible(false)} />

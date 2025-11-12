@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface LoginModalProps {
   visible: boolean;
@@ -29,9 +30,11 @@ export default function LoginModal({ visible, onClose, onSwitchToRegister }: Log
       const data = await response.json();
 
       if (response.ok) {
-        // TODO: Guardar token en AsyncStorage
-        // await AsyncStorage.setItem('token', data.token);
-        Alert.alert("Éxito", "Sesión iniciada correctamente");
+        // Guardar token y datos del usuario en AsyncStorage
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('usuario', JSON.stringify(data.usuario));
+        
+        Alert.alert("Éxito", `Bienvenido ${data.usuario.nombre}!`);
         setEmail("");
         setPassword("");
         onClose();
