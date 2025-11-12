@@ -14,27 +14,19 @@ export default function Tabla() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Cambia la URL según tu entorno:
-    // - Android emulator: 10.0.2.2
-    // - iOS simulator / web: localhost
-    // - Dispositivo físico: reemplaza con tu IP local (ej: 192.168.1.42)
     const BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-    
     const fetchRanking = async () => {
       try {
         setLoading(true);
         const res = await fetch(`${BASE_URL}/ranking`);
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
-        
-        // Mapear respuesta del backend a formato de la UI
         const mapped = (data as any[]).map((u: any, i: number): Persona => ({
           posicion: i + 1,
-          puntuacion: 0, // Por ahora no usamos puntuación
+          puntuacion: 0,
           nombre: u.nombre,
           dineroGastado: u.totalGastado,
         }));
-        
         setPersonas(mapped);
       } catch (err) {
         const e: any = err;
@@ -56,7 +48,7 @@ export default function Tabla() {
               Ranking
               </Text>
               <Image
-                source={require('../assets/images/winner.png')}
+                source={require('../../assets/images/winner.png')}
                 style={styles.rankingImage}
                 resizeMode="contain"
               />
@@ -124,7 +116,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   centro: {
-    // alinea el título + lista en el centro horizontal
     gap: 10,
     flex: 1,
   },
@@ -155,9 +146,9 @@ const styles = StyleSheet.create({
   flatList: {
   }, 
   tablaHeaderContainer: {
-    flexDirection: "row",     // fila
+    flexDirection: "row",
     fontWeight: "bold",
-    backgroundColor: "rgba(255,255,255,0.75)", //rgba(18, 94, 235, 0.5)
+    backgroundColor: "rgba(255,255,255,0.75)",
     borderTopEndRadius: 10,
     borderTopStartRadius: 10,
   },
@@ -167,7 +158,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   listaRowContainer: {
-    flexDirection: "row",     // fila
+    flexDirection: "row",
     borderBottomColor: "rgba(255,255,255,0.3)",
     borderBottomWidth: 1,
   },
@@ -176,7 +167,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   firstRow: {
-     // slight gold background255,215,0,1)'
   },
   firstText: {
     fontWeight: '700',
@@ -196,7 +186,7 @@ const styles = StyleSheet.create({
 
   textoPosicionLista: {
     color: "white",
-    flex: 1,                  // todas las columnas ocupan el mismo espacio
+    flex: 1,
     textAlign: "center",
     padding: 10,
   },

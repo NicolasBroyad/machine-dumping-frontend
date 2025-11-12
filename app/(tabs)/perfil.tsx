@@ -4,7 +4,7 @@ import {
   StyleSheet, Text, TextInput, View
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import { usePerfil } from "../componentes/usePerfil";
+import { usePerfil } from "../../componentes/usePerfil";
 
 type ItemProps = { dato: string };
 
@@ -27,7 +27,6 @@ export default function Perfil() {
   };
 
   const Item = ({ dato }: ItemProps) => {
-    // Cada item tiene su propia animación
     const scale = useSharedValue(1);
     const animatedStyle = useAnimatedStyle(() => {
       return {
