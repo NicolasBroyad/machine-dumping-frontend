@@ -1,8 +1,5 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import {
-  CameraMode,
   CameraType,
   CameraView,
   useCameraPermissions,
@@ -15,16 +12,14 @@ export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
-  const [mode, setMode] = useState<CameraMode>("picture");
   const [facing, setFacing] = useState<CameraType>("back");
-  const [recording, setRecording] = useState(false);
 
   if (!permission) {
     return null;
   }
 
   if (!permission.granted) {
-    return (
+    return ( 
       <View style={styles.container}>
         <Text style={{ textAlign: "center" }}>
           Necesitamos tu permiso para usar la camara
@@ -47,20 +42,6 @@ export default function App() {
     if (photo?.uri) setUri(photo.uri);
   };
 
-  const recordVideo = async () => {
-    if (recording) {
-      setRecording(false);
-      ref.current?.stopRecording();
-      return;
-    }
-    setRecording(true);
-    const video = await ref.current?.recordAsync();
-    console.log({ video });
-  };
-
-  const toggleMode = () => {
-    setMode((prev) => (prev === "picture" ? "video" : "picture"));
-  };
 
   const toggleFacing = () => {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
@@ -93,23 +74,18 @@ export default function App() {
         <CameraView
           style={styles.camera}
           ref={ref}
-          mode={mode}
           facing={facing}
           mute={false}
           responsiveOrientationWhenOrientationLocked
+
+          onBarcodeScanned={({ data }) =>{
+            console.log("data", data)
+          }}
         />
         <View style={styles.shutterContainer}>
-          <Pressable 
-            onPress={toggleMode}
-            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-          >
-            {mode === "picture" ? (
-              <AntDesign name="picture" size={32} color="white" />
-            ) : (
-              <Feather name="video" size={32} color="white" />
-            )}
-          </Pressable>
-          <Pressable onPress={mode === "picture" ? takePicture : recordVideo}>
+          
+            
+          <Pressable onPress={takePicture}>
             {({ pressed }) => (
               <View
                 style={[
@@ -123,7 +99,7 @@ export default function App() {
                   style={[
                     styles.shutterBtnInner,
                     {
-                      backgroundColor: mode === "picture" ? "white" : "red",
+                      backgroundColor: "white",
                     },
                   ]}
                 />
