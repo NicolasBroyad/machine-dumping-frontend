@@ -12,7 +12,7 @@ export default function Index() {
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={styles.welcomeText}>Welcome to Machine Dumping App!</Text>
+      <Text style={styles.welcomeText}>Bienvenido a Machine Dumping App</Text>
 
       <Pressable style={styles.button} onPress={() => router.replace('/ranking')}>
         <Text style={styles.buttonText}>Entrar a la app</Text>
