@@ -1,11 +1,23 @@
 import React, { useState } from "react";
-import { Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import RegisterModal from "../componentes/RegisterModal";
+import LoginModal from "../componentes/LoginModal";
 
 export default function Index() {
   const router = useRouter();
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleRegisterSuccess = () => {
+    // Después de registrarse exitosamente, abrir el modal de login
+    setShowLoginModal(true);
+  };
+
+  const handleSwitchToRegister = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -28,95 +40,17 @@ export default function Index() {
         <Text style={[styles.buttonText, styles.guestText]}>Entrar como invitado</Text>
       </Pressable>
 
-      {/* Modal de Registro */}
-      <Modal visible={showRegisterModal} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Crear cuenta</Text>
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre completo"
-              placeholderTextColor="#999"
-            />
+      <RegisterModal 
+        visible={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSuccess={handleRegisterSuccess}
+      />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Contraseña"
-              placeholderTextColor="#999"
-              secureTextEntry
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Confirmar contraseña"
-              placeholderTextColor="#999"
-              secureTextEntry
-            />
-
-            <Pressable style={styles.modalButton} onPress={() => {
-              // TODO: implementar lógica de registro
-              setShowRegisterModal(false);
-            }}>
-              <Text style={styles.modalButtonText}>Registrarse</Text>
-            </Pressable>
-
-            <Pressable style={styles.cancelButton} onPress={() => setShowRegisterModal(false)}>
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal de Login */}
-      <Modal visible={showLoginModal} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Iniciar sesión</Text>
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Contraseña"
-              placeholderTextColor="#999"
-              secureTextEntry
-            />
-
-            <Pressable style={styles.modalButton} onPress={() => {
-              // TODO: implementar lógica de login
-              setShowLoginModal(false);
-            }}>
-              <Text style={styles.modalButtonText}>Iniciar sesión</Text>
-            </Pressable>
-
-            <Pressable style={styles.cancelButton} onPress={() => setShowLoginModal(false)}>
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </Pressable>
-
-            <Pressable style={styles.linkButton} onPress={() => {
-              setShowLoginModal(false);
-              setShowRegisterModal(true);
-            }}>
-              <Text style={styles.linkButtonText}>¿No tienes cuenta? Regístrate</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <LoginModal 
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
     </View>
   );
 }
@@ -167,78 +101,5 @@ const styles = StyleSheet.create({
   },
   guestText: {
     color: '#fff',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '85%',
-    maxWidth: 400,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
-    padding: 12,
-    marginVertical: 8,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  modalButton: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-    borderRadius: 8,
-    marginTop: 16,
-    width: '100%',
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  cancelButton: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 28,
-    borderRadius: 8,
-    marginTop: 12,
-    width: '100%',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontWeight: '600',
-  },
-  linkButton: {
-    marginTop: 16,
-    padding: 8,
-  },
-  linkButtonText: {
-    color: '#2e6ef7',
-    fontSize: 14,
-    textDecorationLine: 'underline',
   },
 });
