@@ -45,7 +45,7 @@ export default function Perfil() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/auth/perfil', {
+      const response = await fetch('http://192.168.0.208:3000/api/auth/perfil', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

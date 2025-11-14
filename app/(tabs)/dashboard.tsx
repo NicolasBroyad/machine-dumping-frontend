@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, Text, View, Pressable, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import CrearEntornoModal from '../../componentes/CrearEntornoModal';
+import CargarProductosModal from '../../componentes/CargarProductosModal';
+import BarcodeScannerModal from '../../componentes/BarcodeScannerModal';
+import ConfirmarProductoModal from '../../componentes/ConfirmarProductoModal';
+import { useCallback } from 'react';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -26,15 +31,95 @@ export default function Dashboard() {
     loadUser();
   }, []);
 
-  const handleCrear = () => {
-    // Ruta placeholder: el proyecto puede no tener estas pantallas todavía
-    // Si existen, navegar a la ruta correspondiente. Ajustar si es necesario.
+  const [myEnvironments, setMyEnvironments] = useState<Array<{ id: number; name: string }>>([]);
+
+  const fetchMyEnvironments = useCallback(async () => {
     try {
-      // Cast a `any` because las rutas personalizadas pueden no estar tipadas en expo-router
-      router.push('/crear-entorno' as any);
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch('http://192.168.0.208:3000/api/environments/mine', {
+        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMyEnvironments(data || []);
+      } else {
+        console.warn('No se pudieron obtener environments');
+      }
     } catch (e) {
-      Alert.alert('Crear entorno', 'Aquí se debería abrir la pantalla para crear un entorno.');
+      console.error('Error fetching environments', e);
     }
+  }, []);
+
+  useEffect(() => {
+    if (role === 2) {
+      fetchMyEnvironments();
+    }
+  }, [role, fetchMyEnvironments]);
+
+  const handleCrear = () => {
+    // Abrir modal para crear entorno en lugar de navegar
+    setModalVisible(true);
+  };
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cargarProductosVisible, setCargarProductosVisible] = useState(false);
+  const [scannerVisible, setScannerVisible] = useState(false);
+  const [confirmarVisible, setConfirmarVisible] = useState(false);
+  const [scannedBarcode, setScannedBarcode] = useState('');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleOpenScanner = () => {
+    setCargarProductosVisible(false); // Cerrar el modal de productos temporalmente
+    setScannerVisible(true);
+  };
+
+  const handleBarcodeScanned = (barcode: string) => {
+    setScannerVisible(false);
+    setScannedBarcode(barcode);
+    setConfirmarVisible(true);
+  };
+
+  const handleConfirmProduct = async (name: string, price: string) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const environmentId = myEnvironments.length > 0 ? myEnvironments[0].id : 0;
+      
+      const res = await fetch('http://192.168.0.208:3000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({
+          name,
+          price,
+          barcode: scannedBarcode,
+          environmentId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Alert.alert('Producto creado', `${name} ha sido agregado al entorno`);
+        setConfirmarVisible(false);
+        setCargarProductosVisible(true); // Volver a abrir el modal de productos
+        setRefreshTrigger(prev => prev + 1); // Trigger refresh
+      } else {
+        Alert.alert('Error', data.message || 'No se pudo crear el producto');
+      }
+    } catch (e) {
+      console.error('Error creando producto', e);
+      Alert.alert('Error', 'No se pudo conectar con el servidor');
+    }
+  };
+
+  const handleCreateEntorno = (env: { id: number; name: string }) => {
+    // Cuando el modal retorna, refrescar la lista y seleccionar el creado
+    setModalVisible(false);
+    // Si create retorna un objeto completo, refrescamos
+    fetchMyEnvironments();
+    Alert.alert('Entorno creado', `Nombre: ${env.name}`);
   };
 
   const handleUnirse = () => {
@@ -57,10 +142,41 @@ export default function Dashboard() {
     <View style={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
 
+      {myEnvironments.length > 0 && (
+        <View style={styles.envCard}>
+          <Text style={styles.envName}>{myEnvironments[0].name}</Text>
+          <Pressable style={styles.envButton} onPress={() => setCargarProductosVisible(true)}>
+            <Text style={styles.envButtonText}>Cargar productos</Text>
+          </Pressable>
+        </View>
+      )}
+
       {role === 2 ? (
-        <Pressable style={styles.button} onPress={handleCrear} accessibilityLabel="Crear entorno">
-          <Text style={styles.buttonText}>Crear entorno</Text>
-        </Pressable>
+        <>
+          <Pressable style={styles.button} onPress={handleCrear} accessibilityLabel="Crear entorno">
+            <Text style={styles.buttonText}>Crear entorno</Text>
+          </Pressable>
+          <CrearEntornoModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreate={handleCreateEntorno} />
+          <CargarProductosModal 
+            visible={cargarProductosVisible} 
+            onClose={() => setCargarProductosVisible(false)} 
+            environmentName={myEnvironments.length > 0 ? myEnvironments[0].name : ''} 
+            environmentId={myEnvironments.length > 0 ? myEnvironments[0].id : 0}
+            onOpenScanner={handleOpenScanner}
+            refreshTrigger={refreshTrigger}
+          />
+          <BarcodeScannerModal
+            visible={scannerVisible}
+            onClose={() => setScannerVisible(false)}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
+          <ConfirmarProductoModal
+            visible={confirmarVisible}
+            onClose={() => setConfirmarVisible(false)}
+            barcode={scannedBarcode}
+            onConfirm={handleConfirmProduct}
+          />
+        </>
       ) : (
         <Pressable style={styles.button} onPress={handleUnirse} accessibilityLabel="Unirse a un entorno">
           <Text style={styles.buttonText}>Unirse a un entorno</Text>
@@ -93,5 +209,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
+  },
+  envCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  envName: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  envButton: {
+    backgroundColor: '#2e6ef7',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  envButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
