@@ -6,12 +6,12 @@ export default function TabsLayout() {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
-        name="ranking"
+        name="dashboard"
         options={{
-          title: "Ranking",
+          title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require('../../assets/images/ranking.png')}
+              source={require('../../assets/images/dashboard.png')}
               style={[styles.icon, { tintColor: color, width: size, height: size }]}
               resizeMode="contain"
             />

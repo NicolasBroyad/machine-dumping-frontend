@@ -38,7 +38,7 @@ export default function LoginModal({ visible, onClose, onSwitchToRegister }: Log
         setEmail("");
         setPassword("");
         onClose();
-        router.replace('/ranking');
+        router.replace('/dashboard');
       } else {
         Alert.alert("Error", data.message || "Credenciales incorrectas");
       }
