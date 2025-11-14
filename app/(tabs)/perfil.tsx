@@ -13,6 +13,7 @@ interface Usuario {
   id: number;
   nombre: string;
   email: string;
+  tipo: 'cliente' | 'compania';
 }
 
 export default function Perfil() {
@@ -31,8 +32,16 @@ export default function Perfil() {
       const token = await AsyncStorage.getItem('token');
       
       if (!token) {
-        Alert.alert("Error", "No hay sesión activa");
-        router.replace('/');
+        // Si no hay token, mostrar datos de ejemplo para desarrollo
+        const usuarioEjemplo: Usuario = {
+          id: 0,
+          nombre: "Usuario Invitado",
+          email: "invitado@example.com",
+          tipo: "cliente"
+        };
+        setUsuario(usuarioEjemplo);
+        setNuevoNombre(usuarioEjemplo.nombre);
+        setLoading(false);
         return;
       }
 
@@ -73,13 +82,30 @@ export default function Perfil() {
     router.replace('/');
   };
 
-  const lista = [
-    { id: "1", nombre: "Mis datos" },
-    { id: "2", nombre: "Mis torneos" },
-    { id: "3", nombre: "Mis logros" },
-    { id: "4", nombre: "Plata consumida hasta ahora" },
-    { id: "5", nombre: "Cerrar sesión" },
-  ];
+  // Opciones según tipo de usuario
+  const getListaOpciones = () => {
+    if (usuario?.tipo === 'compania') {
+      return [
+        { id: "1", nombre: "Mis datos" },
+        { id: "2", nombre: "Productos registrados" },
+        { id: "3", nombre: "Estadísticas de ventas" },
+        { id: "4", nombre: "Campañas activas" },
+        { id: "5", nombre: "Gestión de promociones" },
+        { id: "6", nombre: "Cerrar sesión" },
+      ];
+    } else {
+      return [
+        { id: "1", nombre: "Mis datos" },
+        { id: "2", nombre: "Mis torneos" },
+        { id: "3", nombre: "Mis logros" },
+        { id: "4", nombre: "Plata consumida hasta ahora" },
+        { id: "5", nombre: "Historial de compras" },
+        { id: "6", nombre: "Cerrar sesión" },
+      ];
+    }
+  };
+
+  const lista = getListaOpciones();
 
   const handlePress = (dato: string) => {
     if (dato === "Mis datos") {
@@ -164,7 +190,17 @@ export default function Perfil() {
           style={styles.profilePicture} 
           source={{ uri: 'https://via.placeholder.com/150' }} 
         />
-        <Text style={styles.name}>{usuario.nombre}</Text> 
+        <View style={styles.nameContainer}>
+          <Text style={styles.name}>{usuario.nombre}</Text>
+          <View style={[
+            styles.badge, 
+            usuario.tipo === 'compania' ? styles.badgeCompania : styles.badgeCliente
+          ]}>
+            <Text style={styles.badgeText}>
+              {usuario.tipo === 'compania' ? '🏢 Compañía' : '👤 Cliente'}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.secondContainer}>
@@ -213,6 +249,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 20,
   },
+  nameContainer: {
+    alignItems: 'flex-start',
+    gap: 8,
+  },
   secondContainer: {
     flex: 3,
     flexDirection: "column",
@@ -228,6 +268,23 @@ const styles = StyleSheet.create({
     fontSize: 24, 
     fontWeight: "bold", 
     color: "#fff"
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+  },
+  badgeCliente: {
+    backgroundColor: '#4CAF50',
+  },
+  badgeCompania: {
+    backgroundColor: '#FF9800',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   item: {
     padding: 20,
