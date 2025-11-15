@@ -1,8 +1,26 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TabsLayout() {
+  const [userRole, setUserRole] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadUserRole = async () => {
+      try {
+        const raw = await AsyncStorage.getItem('usuario');
+        if (raw) {
+          const usuario = JSON.parse(raw);
+          setUserRole(usuario.role ?? null);
+        }
+      } catch (e) {
+        console.error('Error leyendo usuario desde AsyncStorage', e);
+      }
+    };
+    loadUserRole();
+  }, []);
+
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
@@ -29,6 +47,8 @@ export default function TabsLayout() {
               resizeMode="contain"
             />
           ),
+          // Ocultar tab si es company (role 2)
+          href: userRole === 2 ? null : '/scan',
         }}
       />
       <Tabs.Screen name="perfil" 

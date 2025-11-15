@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import CrearEntornoModal from '../../componentes/CrearEntornoModal';
 import CargarProductosModal from '../../componentes/CargarProductosModal';
+import EditarProductosModal from '../../componentes/EditarProductosModal';
 import BarcodeScannerModal from '../../componentes/BarcodeScannerModal';
 import ConfirmarProductoModal from '../../componentes/ConfirmarProductoModal';
 import UnirseEntornoModal from '../../componentes/UnirseEntornoModal';
@@ -145,6 +146,7 @@ export default function Dashboard() {
   const [modalVisible, setModalVisible] = useState(false);
   const [unirseModalVisible, setUnirseModalVisible] = useState(false);
   const [cargarProductosVisible, setCargarProductosVisible] = useState(false);
+  const [editarProductosVisible, setEditarProductosVisible] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
   const [confirmarVisible, setConfirmarVisible] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState('');
@@ -230,9 +232,14 @@ export default function Dashboard() {
       {role === 2 && myEnvironments.length > 0 && (
         <View style={styles.envCard}>
           <Text style={styles.envName}>{myEnvironments[0].name}</Text>
-          <Pressable style={styles.envButton} onPress={() => setCargarProductosVisible(true)}>
-            <Text style={styles.envButtonText}>Cargar productos</Text>
-          </Pressable>
+          <View style={styles.envButtonsContainer}>
+            <Pressable style={styles.envButton} onPress={() => setCargarProductosVisible(true)}>
+              <Text style={styles.envButtonText}>Cargar productos</Text>
+            </Pressable>
+            <Pressable style={styles.editButton} onPress={() => setEditarProductosVisible(true)}>
+              <Text style={styles.editButtonText}>Editar productos</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
@@ -330,6 +337,12 @@ export default function Dashboard() {
             onOpenScanner={handleOpenScanner}
             refreshTrigger={refreshTrigger}
           />
+          <EditarProductosModal
+            visible={editarProductosVisible}
+            onClose={() => setEditarProductosVisible(false)}
+            environmentName={myEnvironments.length > 0 ? myEnvironments[0].name : ''}
+            environmentId={myEnvironments.length > 0 ? myEnvironments[0].id : 0}
+          />
           <BarcodeScannerModal
             visible={scannerVisible}
             onClose={() => setScannerVisible(false)}
@@ -403,7 +416,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 10,
   },
+  envButtonsContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+  },
   envButton: {
+    flex: 1,
     backgroundColor: '#2e6ef7',
     paddingVertical: 10,
     paddingHorizontal: 14,
@@ -411,6 +430,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   envButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: '#ff9800',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  editButtonText: {
     color: '#fff',
     fontWeight: '600',
   },

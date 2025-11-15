@@ -3,14 +3,10 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { Image } from "expo-image";
 import React, { useRef, useState, useEffect } from "react";
 import { Pressable, StyleSheet, Text, View, Alert, ActivityIndicator } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductoInfoModal from '../../componentes/ProductoInfoModal';
-
-// @ts-ignore - vector-icons type issue
-import { FontAwesome6 } from '@expo/vector-icons';
 
 interface Product {
   id: number;
@@ -22,8 +18,6 @@ interface Product {
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
-  const [uri, setUri] = useState<string | null>(null);
-  const [facing, setFacing] = useState<CameraType>("back");
   const [isScanning, setIsScanning] = useState(true);
   const [scannedProduct, setScannedProduct] = useState<Product | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -168,46 +162,13 @@ export default function App() {
     );
   }
 
-  const takePicture = async () => {
-    const photo = await ref.current?.takePictureAsync();
-    if (photo?.uri) setUri(photo.uri);
-  };
-
-
-  const toggleFacing = () => {
-    setFacing((prev) => (prev === "back" ? "front" : "back"));
-  };
-
-  const renderPicture = (uri: string) => {
-    return (
-      <View>
-        <Image
-          source={{ uri }}
-          contentFit="contain"
-          style={{ width: 300, aspectRatio: 1 }}
-        />
-        <Pressable
-          style={({ pressed }) => [
-            styles.retakeButton,
-            { opacity: pressed ? 0.7 : 1 }
-          ]}
-          onPress={() => setUri(null)}
-        >
-          <Text style={styles.retakeButtonText}>Tomar otra foto</Text>
-        </Pressable>
-      </View>
-    );
-  };
-
   const renderCamera = () => {
     return (
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
           ref={ref}
-          facing={facing}
-          mute={false}
-          responsiveOrientationWhenOrientationLocked
+          facing="back"
           barcodeScannerSettings={{
             barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'codabar', 'itf14'],
           }}
@@ -217,36 +178,9 @@ export default function App() {
             }
           }}
         />
-        <View style={styles.shutterContainer}>
-          
-            
-          <Pressable onPress={takePicture}>
-            {({ pressed }) => (
-              <View
-                style={[
-                  styles.shutterBtn,
-                  {
-                    opacity: pressed ? 0.5 : 1,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.shutterBtnInner,
-                    {
-                      backgroundColor: "white",
-                    },
-                  ]}
-                />
-              </View>
-            )}
-          </Pressable>
-          <Pressable 
-            onPress={toggleFacing}
-            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-          >
-            <FontAwesome6 name="rotate-left" size={32} color="white" />
-          </Pressable>
+        <View style={styles.overlay}>
+          <Text style={styles.instructionText}>Apunta la cámara al código de barras del producto</Text>
+          <Text style={styles.subtitleText}>Mantén el código dentro del marco y bien iluminado</Text>
         </View>
       </View>
     );
@@ -254,7 +188,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {uri ? renderPicture(uri) : renderCamera()}
+      {renderCamera()}
       <ProductoInfoModal
         visible={modalVisible}
         onClose={handleCloseModal}
@@ -280,30 +214,31 @@ const styles = StyleSheet.create({
   },
   cameraContainer: StyleSheet.absoluteFillObject,
   camera: StyleSheet.absoluteFillObject,
-  shutterContainer: {
-    position: "absolute",
-    bottom: 44,
+  overlay: {
+    position: 'absolute',
+    top: 50,
     left: 0,
-    width: "100%",
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 30,
+    right: 0,
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
-  shutterBtn: {
-    backgroundColor: "transparent",
-    borderWidth: 5,
-    borderColor: "white",
-    width: 85,
-    height: 85,
-    borderRadius: 45,
-    alignItems: "center",
-    justifyContent: "center",
+  instructionText: {
+    fontSize: 18,
+    color: '#fff',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 12,
+    borderRadius: 8,
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  shutterBtnInner: {
-    width: 70,
-    height: 70,
-    borderRadius: 50,
+  subtitleText: {
+    fontSize: 14,
+    color: '#fff',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 8,
+    borderRadius: 8,
+    textAlign: 'center',
+    marginBottom: 20,
   },
   permissionButton: {
     backgroundColor: "#2196f3",
@@ -313,19 +248,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   permissionButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  retakeButton: {
-    backgroundColor: "#2196f3",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 20,
-    alignSelf: "center",
-  },
-  retakeButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
