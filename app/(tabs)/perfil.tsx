@@ -1,335 +1,217 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  FlatList, Image, Modal, Pressable,
-  StyleSheet, Text, TextInput, View, Alert, ActivityIndicator
+  StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, ScrollView
 } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
-
-type ItemProps = { dato: string };
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 interface Usuario {
-  id: number;
   nombre: string;
-  email: string;
-  tipo: 'cliente' | 'compania';
+  username?: string;
+  role: number; // 1 = Cliente, 2 = Company
 }
 
 export default function Perfil() {
   const router = useRouter();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [nuevoNombre, setNuevoNombre] = useState("");
 
-  useEffect(() => {
-    cargarPerfil();
-  }, []);
-
-  const cargarPerfil = async () => {
+  const cargarPerfil = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      
-      if (!token) {
-        // Si no hay token, mostrar datos de ejemplo para desarrollo
-        const usuarioEjemplo: Usuario = {
-          id: 0,
-          nombre: "Usuario Invitado",
-          email: "invitado@example.com",
-          tipo: "cliente"
-        };
-        setUsuario(usuarioEjemplo);
-        setNuevoNombre(usuarioEjemplo.nombre);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('http://192.168.0.208:3000/api/auth/perfil', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUsuario(data);
-        setNuevoNombre(data.nombre);
+      const raw = await AsyncStorage.getItem('usuario');
+      if (raw) {
+        const user = JSON.parse(raw);
+        setUsuario(user);
       } else {
-        Alert.alert("Error", "No se pudo cargar el perfil");
-        if (response.status === 401) {
-          // Token expirado o inválido
-          await AsyncStorage.removeItem('token');
-          await AsyncStorage.removeItem('usuario');
-          router.replace('/');
-        }
+        router.replace('/');
       }
     } catch (error) {
       console.error("Error al cargar perfil:", error);
-      Alert.alert("Error", "No se pudo conectar con el servidor");
+      Alert.alert("Error", "No se pudo cargar el perfil");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarPerfil();
+    }, [cargarPerfil])
+  );
 
   const cerrarSesion = async () => {
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('usuario');
-    Alert.alert("Sesión cerrada", "Has cerrado sesión exitosamente");
-    router.replace('/');
-  };
-
-  // Opciones según tipo de usuario
-  const getListaOpciones = () => {
-    if (usuario?.tipo === 'compania') {
-      return [
-        { id: "1", nombre: "Mis datos" },
-        { id: "2", nombre: "Productos registrados" },
-        { id: "3", nombre: "Estadísticas de ventas" },
-        { id: "4", nombre: "Campañas activas" },
-        { id: "5", nombre: "Gestión de promociones" },
-        { id: "6", nombre: "Cerrar sesión" },
-      ];
-    } else {
-      return [
-        { id: "1", nombre: "Mis datos" },
-        { id: "2", nombre: "Mis torneos" },
-        { id: "3", nombre: "Mis logros" },
-        { id: "4", nombre: "Plata consumida hasta ahora" },
-        { id: "5", nombre: "Historial de compras" },
-        { id: "6", nombre: "Cerrar sesión" },
-      ];
-    }
-  };
-
-  const lista = getListaOpciones();
-
-  const handlePress = (dato: string) => {
-    if (dato === "Mis datos") {
-      setModalVisible(true);
-    } else if (dato === "Cerrar sesión") {
-      cerrarSesion();
-    }
-  };
-
-  const Item = ({ dato }: ItemProps) => {
-    const scale = useSharedValue(1);
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ scale: scale.value }],
-        opacity: scale.value
-      }
-    });
-
-    return (
-      <Pressable 
-        onPressIn={() => {
-          scale.value = withSpring(0.9);
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1);
-        }}
-        onPress={() => handlePress(dato)}
-      >
-        <Animated.View style={[styles.item, animatedStyle]}>
-          <Text style={styles.dato}>{dato}</Text>
-        </Animated.View>
-      </Pressable>
-    );
-  };
-
-  const SaveButton = ({ onPress }: { onPress: () => void }) => {
-    const scale = useSharedValue(1);
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ scale: scale.value }],
-        opacity: scale.value
-      }
-    });
-
-    return (
-      <Pressable 
-        onPressIn={() => {
-          scale.value = withSpring(0.9);
-        }}
-        onPressOut={() => {
-          scale.value = withSpring(1);
-        }}
-        onPress={onPress}
-      >
-        <Animated.View style={[styles.saveButton, animatedStyle]}>
-          <Text style={styles.saveButtonText}>Guardar</Text>
-        </Animated.View>
-      </Pressable>
+    Alert.alert(
+      "Cerrar Sesión",
+      "¿Estás seguro de que deseas cerrar sesión?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Cerrar Sesión",
+          style: "destructive",
+          onPress: async () => {
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('usuario');
+            router.replace('/');
+          }
+        }
+      ]
     );
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center' }]}>
-        <Text style={{ color: '#fff', fontSize: 18 }}>Cargando perfil...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2e6ef7" />
       </View>
     );
   }
 
   if (!usuario) {
     return (
-      <View style={[styles.container, { justifyContent: 'center' }]}>
-        <Text style={{ color: '#fff', fontSize: 18 }}>No se pudo cargar el perfil</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>No se pudo cargar el perfil</Text>
       </View>
     );
   }
 
+  const tipoUsuario = usuario.role === 1 ? 'Cliente' : 'Compañía';
+
   return (
-    <View style={styles.container}>
-      <View style={styles.firstContainer}>
-        <Image 
-          style={styles.profilePicture} 
-          source={{ uri: 'https://via.placeholder.com/150' }} 
-        />
-        <View style={styles.nameContainer}>
-          <Text style={styles.name}>{usuario.nombre}</Text>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Perfil</Text>
+
+      {/* Card de información del usuario */}
+      <View style={styles.profileCard}>
+        <View style={styles.iconContainer}>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>Nombre de Usuario</Text>
+          <Text style={styles.username}>{usuario.nombre || usuario.username}</Text>
           <View style={[
-            styles.badge, 
-            usuario.tipo === 'compania' ? styles.badgeCompania : styles.badgeCliente
+            styles.badge,
+            usuario.role === 1 ? styles.badgeCliente : styles.badgeCompany
           ]}>
-            <Text style={styles.badgeText}>
-              {usuario.tipo === 'compania' ? '🏢 Compañía' : '👤 Cliente'}
-            </Text>
+            <Text style={styles.badgeText}>{tipoUsuario}</Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.secondContainer}>
-        <FlatList
-          data={lista}
-          renderItem={({ item }) => <Item dato={item.nombre} />}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
-      
-
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-              Editar perfil
-            </Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre de usuario"
-              value={nuevoNombre}
-              onChangeText={setNuevoNombre}
-            />
-
-            <SaveButton onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
-    </View>
+      {/* Botón de cerrar sesión */}
+      <Pressable 
+        style={styles.logoutButton} 
+        onPress={cerrarSesion}
+        accessibilityLabel="Cerrar sesión"
+      >
+        <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+      </Pressable>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
-  container: { 
-    flex: 1, 
-    alignItems: "center", 
-    justifyContent: "center",
-    backgroundColor: "#03213aff"
-  },
-  firstContainer: {
+  scrollContainer: {
     flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 20,
+    backgroundColor: '#f5f5f5',
   },
-  nameContainer: {
-    alignItems: 'flex-start',
-    gap: 8,
+  container: {
+    padding: 20,
+    alignItems: 'center',
   },
-  secondContainer: {
-    flex: 3,
-    flexDirection: "column",
-    justifyContent: "space-evenly",
-    paddingLeft: 20,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
-  profilePicture: { 
-    width: 128, 
-    height: 128, 
-    borderRadius: 64 
+  errorText: {
+    fontSize: 16,
+    color: '#666',
   },
-  name: { 
-    fontSize: 24, 
-    fontWeight: "bold", 
-    color: "#fff"
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 20,
+    color: '#333',
+  },
+  profileCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  icon: {
+    fontSize: 50,
+  },
+  infoContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  username: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 12,
   },
   badge: {
-    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
-    alignSelf: 'flex-start',
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginTop: 8,
   },
   badgeCliente: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#e3f2fd',
   },
-  badgeCompania: {
-    backgroundColor: '#FF9800',
+  badgeCompany: {
+    backgroundColor: '#fff3e0',
   },
   badgeText: {
-    color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+    color: '#333',
   },
-  item: {
-    padding: 20,
-    marginVertical: 8,
-    borderRadius: 10,
-    backgroundColor: "#2196f3",
-  },
-  dato: { 
-    fontSize: 18, 
-    color: "white", 
-    fontWeight: "bold" 
-  },
-  modalContainer: {
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "80%", 
-    backgroundColor: "white",
-    borderRadius: 10, 
-    padding: 20, 
-    alignItems: "center",
-  },
-  input: {
-    width: "100%", 
-    borderWidth: 1, 
-    borderColor: "#ccc",
-    padding: 10,
-    marginVertical: 10, 
+  logoutButton: {
+    width: '100%',
+    backgroundColor: '#f44336',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     borderRadius: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  saveButton: {
-    backgroundColor: "#2196f3",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 10,
-    width: "100%",
-    alignItems: "center",
-  },
-  saveButtonText: {
-    color: "white",
+  logoutButtonText: {
+    color: '#fff',
+    fontWeight: '600',
     fontSize: 16,
-    fontWeight: "bold",
   },
 });

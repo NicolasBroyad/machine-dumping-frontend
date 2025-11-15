@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, Text, View, Pressable, Alert, ScrollView } from 'react-native';
+import { ActivityIndicator, Image, Platform, StyleSheet, Text, View, Pressable, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,6 +9,11 @@ import EditarProductosModal from '../../componentes/EditarProductosModal';
 import BarcodeScannerModal from '../../componentes/BarcodeScannerModal';
 import ConfirmarProductoModal from '../../componentes/ConfirmarProductoModal';
 import UnirseEntornoModal from '../../componentes/UnirseEntornoModal';
+import EntornoCard from '../../componentes/modulos/EntornoCard';
+import EntornoUnidoCard from '../../componentes/modulos/EntornoUnidoCard';
+import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
+import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
+import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
 import { useCallback } from 'react';
 
 export default function Dashboard() {
@@ -230,94 +235,31 @@ export default function Dashboard() {
 
       {/* Card de entorno para Companies */}
       {role === 2 && myEnvironments.length > 0 && (
-        <View style={styles.envCard}>
-          <Text style={styles.envName}>{myEnvironments[0].name}</Text>
-          <View style={styles.envButtonsContainer}>
-            <Pressable style={styles.envButton} onPress={() => setCargarProductosVisible(true)}>
-              <Text style={styles.envButtonText}>Cargar productos</Text>
-            </Pressable>
-            <Pressable style={styles.editButton} onPress={() => setEditarProductosVisible(true)}>
-              <Text style={styles.editButtonText}>Editar productos</Text>
-            </Pressable>
-          </View>
-        </View>
+        <EntornoCard
+          environmentName={myEnvironments[0].name}
+          onCargarProductos={() => setCargarProductosVisible(true)}
+          onEditarProductos={() => setEditarProductosVisible(true)}
+        />
       )}
 
       {/* Card de entorno para Clientes */}
       {role === 1 && joinedEnvironment && (
-        <View style={styles.joinedEnvCard}>
-          <Text style={styles.joinedLabel}>Entorno al que estás unido:</Text>
-          <Text style={styles.joinedEnvName}>{joinedEnvironment.name}</Text>
-        </View>
+        <EntornoUnidoCard environmentName={joinedEnvironment.name} />
+      )}
+
+      {/* Estadísticas para Clientes */}
+      {role === 1 && myRegisters.length > 0 && (
+        <EstadisticasCliente registers={myRegisters} />
       )}
 
       {/* Registros de compras para Clientes */}
-      {role === 1 && myRegisters.length > 0 && (
-        <View style={styles.registersCard}>
-          <Text style={styles.registersTitle}>Mis Compras Registradas</Text>
-          <FlatList
-            data={myRegisters.slice(0, 5)}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.registerItem}>
-                <View style={styles.registerInfo}>
-                  <Text style={styles.registerProductName}>{item.product.name}</Text>
-                  <Text style={styles.registerDate}>
-                    {new Date(item.datetime).toLocaleDateString('es-ES', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
-                </View>
-                <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
-              </View>
-            )}
-            scrollEnabled={false}
-          />
-          {myRegisters.length > 5 && (
-            <Text style={styles.moreRegisters}>
-              +{myRegisters.length - 5} compras más
-            </Text>
-          )}
-        </View>
+      {role === 1 && (
+        <ListaComprasCliente registers={myRegisters} />
       )}
 
       {/* Registros de compras para Companies */}
-      {role === 2 && companyRegisters.length > 0 && (
-        <View style={styles.registersCard}>
-          <Text style={styles.registersTitle}>Compras Registradas en el Entorno</Text>
-          <FlatList
-            data={companyRegisters.slice(0, 10)}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.companyRegisterItem}>
-                <View style={styles.registerInfo}>
-                  <Text style={styles.registerProductName}>{item.product.name}</Text>
-                  <Text style={styles.clientName}>Cliente: {item.client.user.username}</Text>
-                  <Text style={styles.registerDate}>
-                    {new Date(item.datetime).toLocaleDateString('es-ES', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
-                </View>
-                <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
-              </View>
-            )}
-            scrollEnabled={false}
-          />
-          {companyRegisters.length > 10 && (
-            <Text style={styles.moreRegisters}>
-              +{companyRegisters.length - 10} compras más
-            </Text>
-          )}
-        </View>
+      {role === 2 && (
+        <ListaComprasCompany registers={companyRegisters} />
       )}
 
       {role === 2 ? (
@@ -397,150 +339,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
-  },
-  envCard: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  envName: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  envButtonsContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    width: '100%',
-  },
-  envButton: {
-    flex: 1,
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  envButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  editButton: {
-    flex: 1,
-    backgroundColor: '#ff9800',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  editButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  joinedEnvCard: {
-    width: '100%',
-    backgroundColor: '#e8f5e9',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#4caf50',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  joinedLabel: {
-    fontSize: 14,
-    color: '#2e7d32',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  joinedEnvName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1b5e20',
-  },
-  registersCard: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  registersTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    color: '#333',
-  },
-  registerItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  registerInfo: {
-    flex: 1,
-  },
-  registerProductName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  registerDate: {
-    fontSize: 12,
-    color: '#888',
-  },
-  registerPrice: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#4caf50',
-    marginLeft: 10,
-  },
-  moreRegisters: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-  companyRegisterItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: '#f0f8ff',
-    borderRadius: 6,
-    marginBottom: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#2e6ef7',
-  },
-  clientName: {
-    fontSize: 13,
-    color: '#2e6ef7',
-    fontWeight: '600',
-    marginBottom: 2,
   },
 });
