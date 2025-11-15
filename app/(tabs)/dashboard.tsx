@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, Text, View, Pressable, Alert } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, Text, View, Pressable, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -40,6 +40,12 @@ export default function Dashboard() {
     datetime: string;
     product: { name: string; price: number };
     environment: { name: string };
+  }>>([]);
+  const [companyRegisters, setCompanyRegisters] = useState<Array<{
+    id: number;
+    datetime: string;
+    product: { name: string; price: number };
+    client: { user: { username: string; email: string } };
   }>>([]);
 
   const fetchMyEnvironments = useCallback(async () => {
@@ -93,22 +99,42 @@ export default function Dashboard() {
     }
   }, []);
 
+  const fetchCompanyRegisters = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch('http://192.168.0.208:3000/api/registers/company', {
+        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCompanyRegisters(data || []);
+      } else {
+        console.warn('No se pudieron obtener los registros de la company');
+      }
+    } catch (e) {
+      console.error('Error fetching company registers', e);
+    }
+  }, []);
+
   useEffect(() => {
     if (role === 2) {
       fetchMyEnvironments();
+      fetchCompanyRegisters();
     } else if (role === 1) {
       fetchJoinedEnvironment();
       fetchMyRegisters();
     }
-  }, [role, fetchMyEnvironments, fetchJoinedEnvironment, fetchMyRegisters]);
+  }, [role, fetchMyEnvironments, fetchJoinedEnvironment, fetchMyRegisters, fetchCompanyRegisters]);
 
   // Refrescar registros cuando la pantalla vuelva a estar en foco
   useFocusEffect(
     useCallback(() => {
       if (role === 1) {
         fetchMyRegisters();
+      } else if (role === 2) {
+        fetchCompanyRegisters();
       }
-    }, [role, fetchMyRegisters])
+    }, [role, fetchMyRegisters, fetchCompanyRegisters])
   );
 
   const handleCrear = () => {
@@ -197,7 +223,7 @@ export default function Dashboard() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
 
       {/* Card de entorno para Companies */}
@@ -252,11 +278,49 @@ export default function Dashboard() {
         </View>
       )}
 
+      {/* Registros de compras para Companies */}
+      {role === 2 && companyRegisters.length > 0 && (
+        <View style={styles.registersCard}>
+          <Text style={styles.registersTitle}>Compras Registradas en el Entorno</Text>
+          <FlatList
+            data={companyRegisters.slice(0, 10)}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.companyRegisterItem}>
+                <View style={styles.registerInfo}>
+                  <Text style={styles.registerProductName}>{item.product.name}</Text>
+                  <Text style={styles.clientName}>Cliente: {item.client.user.username}</Text>
+                  <Text style={styles.registerDate}>
+                    {new Date(item.datetime).toLocaleDateString('es-ES', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+                <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
+              </View>
+            )}
+            scrollEnabled={false}
+          />
+          {companyRegisters.length > 10 && (
+            <Text style={styles.moreRegisters}>
+              +{companyRegisters.length - 10} compras más
+            </Text>
+          )}
+        </View>
+      )}
+
       {role === 2 ? (
         <>
-          <Pressable style={styles.button} onPress={handleCrear} accessibilityLabel="Crear entorno">
-            <Text style={styles.buttonText}>Crear entorno</Text>
-          </Pressable>
+          {/* Solo mostrar el botón si no hay entornos creados */}
+          {myEnvironments.length === 0 && (
+            <Pressable style={styles.button} onPress={handleCrear} accessibilityLabel="Crear entorno">
+              <Text style={styles.buttonText}>Crear entorno</Text>
+            </Pressable>
+          )}
           <CrearEntornoModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreate={handleCreateEntorno} />
           <CargarProductosModal 
             visible={cargarProductosVisible} 
@@ -292,16 +356,17 @@ export default function Dashboard() {
           />
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  container: {
     padding: 20,
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
@@ -428,5 +493,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     fontStyle: 'italic',
+  },
+  companyRegisterItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 6,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#2e6ef7',
+  },
+  clientName: {
+    fontSize: 13,
+    color: '#2e6ef7',
+    fontWeight: '600',
+    marginBottom: 2,
   },
 });
