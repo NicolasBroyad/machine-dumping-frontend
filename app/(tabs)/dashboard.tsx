@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Platform, StyleSheet, Text, View, Pressable, 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { API_ENDPOINTS } from '../../config/api';
 import CrearEntornoModal from '../../componentes/CrearEntornoModal';
 import CargarProductosModal from '../../componentes/CargarProductosModal';
 import EditarProductosModal from '../../componentes/EditarProductosModal';
@@ -57,8 +58,8 @@ export default function Dashboard() {
   const fetchMyEnvironments = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/environments/mine', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_MINE, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -74,8 +75,8 @@ export default function Dashboard() {
   const fetchJoinedEnvironment = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/environments/joined', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_JOINED, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -91,8 +92,8 @@ export default function Dashboard() {
   const fetchMyRegisters = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/registers/mine', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.REGISTERS_MINE, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -108,8 +109,8 @@ export default function Dashboard() {
   const fetchCompanyRegisters = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/registers/company', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.REGISTERS_COMPANY, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -173,11 +174,11 @@ export default function Dashboard() {
       const token = await AsyncStorage.getItem('token');
       const environmentId = myEnvironments.length > 0 ? myEnvironments[0].id : 0;
       
-      const res = await fetch('http://192.168.0.208:3000/api/products', {
+      const res = await fetch(API_ENDPOINTS.PRODUCTS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name,

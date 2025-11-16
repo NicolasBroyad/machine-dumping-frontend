@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/api';
 
 interface CargarProductosModalProps {
   visible: boolean;
@@ -31,8 +32,8 @@ export default function CargarProductosModal({ visible, onClose, environmentName
   const fetchProductos = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`http://192.168.0.208:3000/api/products/${environmentId}`, {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.PRODUCTS_BY_ENVIRONMENT(environmentId), {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();

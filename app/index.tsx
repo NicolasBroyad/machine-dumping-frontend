@@ -36,10 +36,6 @@ export default function Index() {
         <Text style={[styles.buttonText, styles.outlineText]}>Iniciar sesión</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.guestButton]} onPress={() => router.replace('/ranking')}>
-        <Text style={[styles.buttonText, styles.guestText]}>Entrar como invitado</Text>
-      </Pressable>
-
       <RegisterModal 
         visible={showRegisterModal}
         onClose={() => setShowRegisterModal(false)}

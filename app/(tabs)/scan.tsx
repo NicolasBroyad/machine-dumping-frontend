@@ -7,6 +7,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Pressable, StyleSheet, Text, View, Alert, ActivityIndicator } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductoInfoModal from '../../componentes/ProductoInfoModal';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Product {
   id: number;
@@ -40,8 +41,8 @@ export default function App() {
         if (userIsClient) {
           // Verificar si el cliente está unido a un entorno
           const token = await AsyncStorage.getItem('token');
-          const res = await fetch('http://192.168.0.208:3000/api/environments/joined', {
-            headers: { Authorization: token ? `Bearer ${token}` : '' },
+          const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_JOINED, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const data = await res.json();
@@ -63,8 +64,8 @@ export default function App() {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`http://192.168.0.208:3000/api/products/scan/${data}`, {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.PRODUCTS_SCAN(data), {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.ok) {
@@ -96,11 +97,11 @@ export default function App() {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/registers', {
+      const res = await fetch(API_ENDPOINTS.REGISTERS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ productId: scannedProduct.id }),
       });

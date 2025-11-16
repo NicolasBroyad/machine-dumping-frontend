@@ -11,6 +11,7 @@ import {
   TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/api';
 
 interface Product {
   id: number;
@@ -43,8 +44,8 @@ export default function EditarProductosModal({ visible, onClose, environmentId, 
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`http://192.168.0.208:3000/api/products/${environmentId}`, {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.PRODUCTS_BY_ENVIRONMENT(environmentId), {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -86,11 +87,11 @@ export default function EditarProductosModal({ visible, onClose, environmentId, 
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch(`http://192.168.0.208:3000/api/products/${productId}`, {
+      const res = await fetch(API_ENDPOINTS.PRODUCT_BY_ID(productId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name: editName, price: editPrice }),
       });
@@ -121,9 +122,9 @@ export default function EditarProductosModal({ visible, onClose, environmentId, 
           onPress: async () => {
             try {
               const token = await AsyncStorage.getItem('token');
-              const res = await fetch(`http://192.168.0.208:3000/api/products/${productId}`, {
+              const res = await fetch(API_ENDPOINTS.PRODUCT_BY_ID(productId), {
                 method: 'DELETE',
-                headers: { Authorization: token ? `Bearer ${token}` : '' },
+                headers: { Authorization: `Bearer ${token}` },
               });
 
               if (res.ok) {
