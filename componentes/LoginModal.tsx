@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/api';
 
 interface LoginModalProps {
   visible: boolean;
@@ -21,7 +22,7 @@ export default function LoginModal({ visible, onClose, onSwitchToRegister }: Log
     }
 
     try {
-      const response = await fetch('http://192.168.0.208:3000/api/auth/login', {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -30,7 +31,6 @@ export default function LoginModal({ visible, onClose, onSwitchToRegister }: Log
       const data = await response.json();
 
       if (response.ok) {
-        // Guardar token y datos del usuario en AsyncStorage
         await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('usuario', JSON.stringify(data.usuario));
         

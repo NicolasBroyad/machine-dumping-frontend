@@ -65,6 +65,18 @@ Luego:
 - Presiona **`i`** para iOS simulator
 - Escanea el QR con Expo Go desde tu móvil
 
+## Configuración del proyecto
+
+1. Instala las dependencias: `npm install`
+2. Edita `app.json` y cambia la IP en `extra.apiUrl` por tu IP local
+3. Para obtener tu IP:
+   - Windows: abre CMD y ejecuta `ipconfig`
+   - Mac/Linux: abre Terminal y ejecuta `ifconfig`
+   - Busca la IPv4 de tu adaptador WiFi
+4. Ejecuta el proyecto: `npx expo start`
+
+**Nota:** Asegúrate de que tu dispositivo y la computadora estén en la misma red WiFi.
+
 ## Configuración según tu dispositivo
 
 ### Android Emulator

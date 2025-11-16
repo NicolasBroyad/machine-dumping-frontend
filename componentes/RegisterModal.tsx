@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
+import { API_ENDPOINTS } from '../config/api';
 
 interface RegisterModalProps {
   visible: boolean;
@@ -26,7 +27,7 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
     }
 
     try {
-      const response = await fetch('http://192.168.0.208:3000/api/auth/register', {
+      const response = await fetch(API_ENDPOINTS.REGISTER, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
