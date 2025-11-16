@@ -1,11 +1,29 @@
 import Constants from 'expo-constants';
 
-// Lee la IP desde app.json (extra.apiUrl)
-const API_URL = Constants.expoConfig?.extra?.apiUrl as string;
+// Intenta obtener la URL desde app.json extra, si no, detecta automáticamente
+const getApiUrl = () => {
+  // Si hay una URL configurada en app.json extra, úsala
+  const configuredUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (configuredUrl && configuredUrl !== 'http://192.168.0.208:3000') {
+    return configuredUrl;
+  }
 
-if (!API_URL) {
-  throw new Error('API_URL no está configurada. Por favor configura "extra.apiUrl" en app.json');
-}
+  // Si no, detecta automáticamente la IP local desde Expo
+  if (__DEV__) {
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const localIp = hostUri.split(':').shift();
+      return `http://${localIp}:3000`;
+    }
+  }
+
+  // Fallback para producción
+  return 'http://localhost:3000';
+};
+
+export const API_URL = getApiUrl();
+
+console.log('🔗 API URL configurada:', API_URL);
 
 export const API_BASE_URL = API_URL;
 
