@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/api';
 
 interface Environment {
   id: number;
@@ -37,8 +38,8 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/environments/all', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_ALL, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -57,11 +58,11 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
   const handleJoin = async (env: Environment) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/environments/join', {
+      const res = await fetch(API_ENDPOINTS.JOIN_ENVIRONMENT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ environmentId: env.id }),
       });

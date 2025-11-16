@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/api';
 
 type Env = {
   id: number;
@@ -28,11 +29,11 @@ export default function CrearEntornoModal({ visible, onClose, onCreate }: CrearE
   const createEnvironment = async (nombreEnv: string) => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const res = await fetch('http://192.168.0.208:3000/api/environments', {
+      const res = await fetch(API_ENDPOINTS.ENVIRONMENTS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name: nombreEnv }),
       });
