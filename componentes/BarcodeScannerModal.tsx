@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
 
 interface BarcodeScannerModalProps {
   visible: boolean;
@@ -34,7 +35,7 @@ export default function BarcodeScannerModal({ visible, onClose, onBarcodeScanned
     return (
       <Modal visible={visible} animationType="slide">
         <View style={styles.container}>
-          <Text>Solicitando permiso de cámara...</Text>
+          <Text style={styles.loadingText}>Solicitando permiso de cámara...</Text>
         </View>
       </Modal>
     );
@@ -44,9 +45,9 @@ export default function BarcodeScannerModal({ visible, onClose, onBarcodeScanned
     return (
       <Modal visible={visible} animationType="slide">
         <View style={styles.container}>
-          <Text style={styles.errorText}>Se necesita permiso para usar la cámara</Text>
-          <Pressable style={styles.closeButton} onPress={requestPermission}>
-            <Text style={styles.closeButtonText}>Conceder permiso</Text>
+          <Text style={styles.errorText}>📸 Se necesita permiso para usar la cámara</Text>
+          <Pressable style={styles.primaryButton} onPress={requestPermission}>
+            <Text style={styles.primaryButtonText}>Conceder permiso</Text>
           </Pressable>
           <Pressable style={styles.cancelButton} onPress={onClose}>
             <Text style={styles.cancelButtonText}>Cancelar</Text>
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.background,
   },
   overlay: {
     position: 'absolute',
@@ -101,50 +103,57 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   instructionText: {
-    fontSize: 18,
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 12,
-    borderRadius: 8,
+    ...Typography.bodyBold,
+    color: Colors.white,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.sm,
   },
   subtitleText: {
-    fontSize: 14,
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 8,
-    borderRadius: 8,
+    ...Typography.caption,
+    color: Colors.white,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
   },
   errorText: {
-    fontSize: 16,
-    color: '#d00',
-    marginBottom: 20,
+    ...Typography.h4,
+    color: Colors.error,
+    marginBottom: Spacing.lg,
     textAlign: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+  primaryButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.sm,
+    ...Shadows.md,
+  },
+  primaryButtonText: {
+    ...Typography.bodyBold,
+    color: Colors.white,
   },
   cancelButton: {
-    backgroundColor: '#d00',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: Colors.error,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
   },
   cancelButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  closeButton: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    ...Typography.bodyBold,
+    color: Colors.white,
   },
 });

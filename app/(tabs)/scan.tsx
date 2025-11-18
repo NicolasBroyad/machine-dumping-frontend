@@ -8,6 +8,7 @@ import { Pressable, StyleSheet, Text, View, Alert, ActivityIndicator } from "rea
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductoInfoModal from '../../componentes/ProductoInfoModal';
 import { API_ENDPOINTS } from '../../config/api';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 interface Product {
   id: number;
@@ -127,7 +128,7 @@ export default function App() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#2196f3" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -137,8 +138,8 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.warningText}>
           {!isClient 
-            ? 'Esta función solo está disponible para clientes' 
-            : 'Debes unirte a un entorno para escanear productos'}
+            ? '🔒 Esta función solo está disponible para clientes' 
+            : '🏢 Debes unirte a un entorno para escanear productos'}
         </Text>
       </View>
     );
@@ -147,13 +148,13 @@ export default function App() {
   if (!permission.granted) {
     return ( 
       <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>
-          Necesitamos tu permiso para usar la camara
+        <Text style={styles.permissionText}>
+          Necesitamos tu permiso para usar la cámara
         </Text>
         <Pressable
           style={({ pressed }) => [
             styles.permissionButton,
-            { opacity: pressed ? 0.7 : 1 }
+            pressed && styles.buttonPressed
           ]}
           onPress={requestPermission}
         >
@@ -203,15 +204,22 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
   warningText: {
-    fontSize: 16,
-    color: '#666',
+    ...Typography.h4,
+    color: Colors.textSecondary,
     textAlign: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: Spacing.xxl,
+  },
+  permissionText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   cameraContainer: StyleSheet.absoluteFillObject,
   camera: StyleSheet.absoluteFillObject,
@@ -221,36 +229,40 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
   },
   instructionText: {
-    fontSize: 18,
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 12,
-    borderRadius: 8,
+    ...Typography.bodyBold,
+    color: Colors.white,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.sm,
   },
   subtitleText: {
-    fontSize: 14,
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 8,
-    borderRadius: 8,
+    ...Typography.caption,
+    color: Colors.white,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.md,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   permissionButton: {
-    backgroundColor: "#2196f3",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 20,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xxl,
+    borderRadius: BorderRadius.lg,
+    marginTop: Spacing.lg,
+    ...Shadows.md,
+  },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   permissionButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+    ...Typography.bodyBold,
+    color: Colors.white,
   },
 });

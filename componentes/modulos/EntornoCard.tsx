@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 interface EntornoCardProps {
   environmentName: string;
@@ -38,21 +39,17 @@ export default function EntornoCard({
 const styles = StyleSheet.create({
   envCard: {
     width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
     alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...Shadows.md,
   },
   envName: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 10,
+    ...Typography.h4,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   envButtonsContainer: {
     flexDirection: 'row',
@@ -61,26 +58,28 @@ const styles = StyleSheet.create({
   },
   envButton: {
     flex: 1,
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
   },
   envButtonText: {
-    color: '#fff',
+    ...Typography.body,
+    color: Colors.white,
     fontWeight: '600',
   },
   editButton: {
     flex: 1,
-    backgroundColor: '#ff9800',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
+    backgroundColor: Colors.warning,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
   },
   editButtonText: {
-    color: '#fff',
+    ...Typography.body,
+    color: Colors.white,
     fontWeight: '600',
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 interface Register {
   id: number;
@@ -37,37 +38,33 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...Shadows.md,
     borderLeftWidth: 4,
-    borderLeftColor: '#2e6ef7',
+    borderLeftColor: Colors.primary,
   },
   statLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
     fontWeight: '500',
   },
   statValue: {
-    fontSize: 24,
+    ...Typography.h2,
     fontWeight: '700',
-    color: '#4caf50',
+    color: Colors.success,
   },
   statValueCount: {
-    fontSize: 24,
+    ...Typography.h2,
     fontWeight: '700',
-    color: '#2e6ef7',
+    color: Colors.primary,
   },
 });

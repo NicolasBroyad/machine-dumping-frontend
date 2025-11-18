@@ -16,6 +16,7 @@ import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
 import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
 import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
 import { useCallback } from 'react';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -224,8 +225,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -267,8 +268,15 @@ export default function Dashboard() {
         <>
           {/* Solo mostrar el botón si no hay entornos creados */}
           {myEnvironments.length === 0 && (
-            <Pressable style={styles.button} onPress={handleCrear} accessibilityLabel="Crear entorno">
-              <Text style={styles.buttonText}>Crear entorno</Text>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.buttonPressed
+              ]} 
+              onPress={handleCrear} 
+              accessibilityLabel="Crear entorno"
+            >
+              <Text style={styles.buttonText}>🏢 Crear entorno</Text>
             </Pressable>
           )}
           <CrearEntornoModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreate={handleCreateEntorno} />
@@ -301,8 +309,15 @@ export default function Dashboard() {
       ) : (
         <>
           {!joinedEnvironment && (
-            <Pressable style={styles.button} onPress={handleUnirse} accessibilityLabel="Unirse a un entorno">
-              <Text style={styles.buttonText}>Unirse a un entorno</Text>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.buttonPressed
+              ]} 
+              onPress={handleUnirse} 
+              accessibilityLabel="Unirse a un entorno"
+            >
+              <Text style={styles.buttonText}>🔗 Unirse a un entorno</Text>
             </Pressable>
           )}
           <UnirseEntornoModal 
@@ -319,26 +334,42 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   container: {
-    padding: 20,
+    padding: Spacing.lg,
     alignItems: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 20,
+    ...Typography.h2,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xl,
+    alignSelf: 'flex-start',
   },
   button: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
     alignItems: 'center',
+    marginTop: Spacing.lg,
+    width: '100%',
+    maxWidth: 320,
+    ...Shadows.md,
+  },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    ...Typography.bodyBold,
+    color: Colors.white,
     fontSize: 16,
   },
 });

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View, StatusBar } from "react-native";
 import { useRouter } from "expo-router";
 import RegisterModal from "../componentes/RegisterModal";
 import LoginModal from "../componentes/LoginModal";
+import { Colors, BorderRadius, Spacing, Typography, Shadows } from "../constants/theme";
 
 export default function Index() {
   const router = useRouter();
@@ -10,7 +11,6 @@ export default function Index() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleRegisterSuccess = () => {
-    // Después de registrarse exitosamente, abrir el modal de login
     setShowLoginModal(true);
   };
 
@@ -21,20 +21,50 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../assets/images/icon.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-      <Text style={styles.welcomeText}>Bienvenido a Machine Dumping App</Text>
+      <StatusBar barStyle="light-content" />
+      
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoGlow}>
+            <Image
+              source={require('../assets/images/icon.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
 
-      <Pressable style={styles.button} onPress={() => setShowRegisterModal(true)}>
-        <Text style={styles.buttonText}>Crear cuenta</Text>
-      </Pressable>
+        <Text style={styles.welcomeText}>Machine Dumping</Text>
+        <Text style={styles.subtitle}>Tu asistente de compras inteligente</Text>
 
-      <Pressable style={[styles.button, styles.outline]} onPress={() => setShowLoginModal(true)}>
-        <Text style={[styles.buttonText, styles.outlineText]}>Iniciar sesión</Text>
-      </Pressable>
+        <View style={styles.buttonsContainer}>
+          <Pressable 
+            style={({ pressed }) => [
+              styles.button,
+              pressed && styles.buttonPressed
+            ]} 
+            onPress={() => setShowRegisterModal(true)}
+          >
+            <Text style={styles.buttonText}>Crear cuenta</Text>
+          </Pressable>
+
+          <Pressable 
+            style={({ pressed }) => [
+              styles.buttonOutline,
+              pressed && styles.buttonPressed
+            ]} 
+            onPress={() => setShowLoginModal(true)}
+          >
+            <Text style={styles.buttonOutlineText}>Iniciar sesión</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.footer}>
+          <View style={styles.decorativeLine} />
+          <Text style={styles.footerText}>Escanea, Compara, Ahorra</Text>
+          <View style={styles.decorativeLine} />
+        </View>
+      </View>
 
       <RegisterModal 
         visible={showRegisterModal}
@@ -54,48 +84,90 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
+    padding: Spacing.xl,
+  },
+  logoContainer: {
+    marginBottom: Spacing.xl,
+  },
+  logoGlow: {
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surfaceLight,
+    ...Shadows.glow,
   },
   logo: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
+    width: 120,
+    height: 120,
   },
   welcomeText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 24,
+    ...Typography.h1,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
+  },
+  subtitle: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xxl,
+    textAlign: 'center',
+  },
+  buttonsContainer: {
+    width: '100%',
+    maxWidth: 320,
+    gap: Spacing.md,
   },
   button: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-    borderRadius: 8,
-    marginTop: 12,
-    minWidth: 200,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     alignItems: 'center',
+    ...Shadows.md,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    ...Typography.bodyBold,
+    color: Colors.white,
+    fontSize: 18,
   },
-  outline: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#2e6ef7',
+  buttonOutline: {
+    borderRadius: BorderRadius.lg,
+    padding: 2,
+    backgroundColor: Colors.surfaceLight,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.primary,
   },
-  outlineText: {
-    color: '#2e6ef7',
+  buttonOutlineText: {
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
+    fontSize: 18,
   },
-  guestButton: {
-    backgroundColor: '#999',
-    borderWidth: 0,
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
-  guestText: {
-    color: '#fff',
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.xxl,
+    gap: Spacing.md,
+  },
+  decorativeLine: {
+    width: 40,
+    height: 2,
+    backgroundColor: Colors.primary,
+    opacity: 0.5,
+  },
+  footerText: {
+    ...Typography.caption,
+    color: Colors.textTertiary,
   },
 });

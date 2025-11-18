@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS } from '../config/api';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
 
 interface Environment {
   id: number;
@@ -100,7 +101,7 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
           <Text style={styles.title}>Selecciona un entorno</Text>
 
           {loading ? (
-            <ActivityIndicator size="large" color="#2e6ef7" style={styles.loader} />
+            <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
           ) : environments.length === 0 ? (
             <Text style={styles.emptyText}>No hay entornos disponibles</Text>
           ) : (
@@ -124,30 +125,32 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
     width: '85%',
     maxHeight: '70%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
+    ...Shadows.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 20,
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
     textAlign: 'center',
   },
   loader: {
-    marginVertical: 30,
+    marginVertical: Spacing.xxl,
   },
   emptyText: {
+    ...Typography.body,
     textAlign: 'center',
-    color: '#888',
-    marginVertical: 30,
+    color: Colors.textTertiary,
+    marginVertical: Spacing.xxl,
   },
   list: {
     maxHeight: 300,
@@ -156,42 +159,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    marginBottom: 10,
+    padding: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    ...Shadows.sm,
   },
   envName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
   },
   companyName: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.caption,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   joinButton: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.sm,
   },
   joinButtonText: {
-    color: '#fff',
+    ...Typography.caption,
+    color: Colors.white,
     fontWeight: '600',
-    fontSize: 14,
   },
   cancelButton: {
-    backgroundColor: '#ccc',
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: Colors.surfaceLight,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: Spacing.md,
   },
   cancelButtonText: {
-    color: '#333',
-    fontWeight: '600',
-    fontSize: 16,
+    ...Typography.bodyBold,
+    color: Colors.textSecondary,
   },
 });

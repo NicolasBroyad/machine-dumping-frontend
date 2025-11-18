@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS } from '../config/api';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
 
 type Env = {
   id: number;
@@ -84,49 +85,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
   },
   modalContent: {
     width: '85%',
     maxWidth: 420,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
     alignItems: 'center',
+    ...Shadows.lg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
   },
   input: {
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: Colors.surfaceLight,
+    backgroundColor: Colors.surface,
+    color: Colors.textPrimary,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+    fontSize: 16,
   },
   primaryButton: {
-    backgroundColor: '#2e6ef7',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.lg,
     width: '100%',
     alignItems: 'center',
+    ...Shadows.md,
   },
   primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    ...Typography.bodyBold,
+    color: Colors.white,
   },
   cancelButton: {
-    marginTop: 10,
+    marginTop: Spacing.md,
     width: '100%',
-    paddingVertical: 10,
+    paddingVertical: Spacing.sm,
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.surfaceLight,
+    borderRadius: BorderRadius.md,
   },
   cancelButtonText: {
-    color: '#666',
-    fontWeight: '600',
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
 });

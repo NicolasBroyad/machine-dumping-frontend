@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 interface Register {
   id: number;
@@ -56,56 +57,49 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
 const styles = StyleSheet.create({
   registersCard: {
     width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.md,
   },
   registersTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    color: '#333',
+    ...Typography.h4,
+    marginBottom: Spacing.md,
+    color: Colors.textPrimary,
   },
   registerItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 6,
-    marginBottom: 8,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.sm,
+    marginBottom: Spacing.sm,
   },
   registerInfo: {
     flex: 1,
   },
   registerProductName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   registerDate: {
-    fontSize: 12,
-    color: '#888',
+    ...Typography.small,
+    color: Colors.textTertiary,
   },
   registerPrice: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#4caf50',
-    marginLeft: 10,
+    ...Typography.bodyBold,
+    color: Colors.success,
+    marginLeft: Spacing.sm,
   },
   moreRegisters: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.caption,
+    color: Colors.textSecondary,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: Spacing.sm,
     fontStyle: 'italic',
   },
 });

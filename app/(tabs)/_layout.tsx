@@ -1,7 +1,8 @@
 import { Tabs } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors, BorderRadius } from "../../constants/theme";
 
 export default function TabsLayout() {
   const [userRole, setUserRole] = useState<number | null>(null);
@@ -22,52 +23,92 @@ export default function TabsLayout() {
   }, []);
 
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs 
+      screenOptions={{ 
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: Colors.backgroundCard,
+          borderTopWidth: 0,
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+          paddingTop: 10,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textTertiary,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
+        },
+      }}
+    >
       <Tabs.Screen
         name="dashboard"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('../../assets/images/dashboard.png')}
-              style={[styles.icon, { tintColor: color, width: size, height: size }]}
-              resizeMode="contain"
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+              <Image
+                source={require('../../assets/images/dashboard.png')}
+                style={[styles.icon, { tintColor: color }]}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen 
         name="scan"
         options={{
-          title: "Scan",
-          tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('../../assets/images/barcode-scan.png')}
-              style={[styles.icon, { tintColor: color, width: size, height: size }]}
-              resizeMode="contain"
-            />
+          title: "Escanear",
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+              <Image
+                source={require('../../assets/images/barcode-scan.png')}
+                style={[styles.icon, { tintColor: color }]}
+                resizeMode="contain"
+              />
+            </View>
           ),
-          // Ocultar tab si es company (role 2)
           href: userRole === 2 ? null : '/scan',
         }}
       />
-      <Tabs.Screen name="perfil" 
-      options={{
-        title: "Perfil",
-        tabBarIcon: ({ color, size }) => (
-          <Image
-            source={require('../../assets/images/account-tie.png')}
-            style={[styles.icon, { tintColor: color, width: size, height: size }]}
-            resizeMode="contain"
-          />
-        ),
-      }} 
+      <Tabs.Screen 
+        name="perfil" 
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color, focused }) => (
+            <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+              <Image
+                source={require('../../assets/images/account-tie.png')}
+                style={[styles.icon, { tintColor: color }]}
+                resizeMode="contain"
+              />
+            </View>
+          ),
+        }} 
       />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  iconContainerActive: {
+    backgroundColor: Colors.surface,
+  },
   icon: {
     width: 24,
     height: 24,
