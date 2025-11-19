@@ -56,9 +56,8 @@ export default function LoginModal({ visible, onClose, onSwitchToRegister }: Log
           
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Email o Usuario"
             placeholderTextColor="#999"
-            keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
