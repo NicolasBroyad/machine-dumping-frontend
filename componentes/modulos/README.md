@@ -13,6 +13,18 @@ Esta carpeta contiene componentes modulares reutilizables que se utilizan en el 
   - "Editar productos" (naranja)
 - Props: `environmentName`, `onCargarProductos()`, `onEditarProductos()`
 
+#### **EstadisticasCompany.tsx**
+- Módulo de estadísticas del entorno de la compañía con 4 componentes:
+  - **Total Recaudado**: Suma de precios de todas las ventas (verde)
+  - **Productos Vendidos**: Cantidad total de productos vendidos (azul)
+  - **Producto Más Comprado**: El producto con más ventas, mostrando cantidad y precio (naranja)
+  - **Mayor Comprador**: Cliente que más dinero gastó, mostrando cantidad de compras y total (morado)
+- Layout: 
+  - Fila 1: Total Recaudado y Productos Vendidos (lado a lado)
+  - Fila 2: Producto Más Comprado (tarjeta completa)
+  - Fila 3: Mayor Comprador (tarjeta completa)
+- Props: `statistics` (objeto con todas las estadísticas calculadas desde el backend)
+
 #### **ListaComprasCompany.tsx**
 - Muestra la lista de compras registradas por clientes en el entorno
 - Incluye: nombre del producto, precio, fecha/hora, y nombre del cliente
@@ -47,6 +59,7 @@ Esta carpeta contiene componentes modulares reutilizables que se utilizan en el 
 
 ```tsx
 import EntornoCard from '../../componentes/modulos/EntornoCard';
+import EstadisticasCompany from '../../componentes/modulos/EstadisticasCompany';
 import EntornoUnidoCard from '../../componentes/modulos/EntornoUnidoCard';
 import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
 import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
@@ -58,6 +71,8 @@ import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
   onCargarProductos={() => setModalVisible(true)}
   onEditarProductos={() => setEditModalVisible(true)}
 />
+
+<EstadisticasCompany statistics={companyStatistics} />
 
 // Ejemplo para Clients
 <EntornoUnidoCard environmentName={joinedEnvironment.name} />

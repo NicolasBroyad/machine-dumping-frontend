@@ -13,6 +13,9 @@ import UnirseEntornoModal from '../../componentes/UnirseEntornoModal';
 import EntornoCard from '../../componentes/modulos/EntornoCard';
 import EntornoUnidoCard from '../../componentes/modulos/EntornoUnidoCard';
 import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
+import EstadisticasCompany from '../../componentes/modulos/EstadisticasCompany';
+import ProductoFavorito from '../../componentes/modulos/ProductoFavorito';
+import RankingCliente from '../../componentes/modulos/RankingCliente';
 import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
 import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
 import { useCallback } from 'react';
@@ -55,6 +58,18 @@ export default function Dashboard() {
     product: { name: string; price: number };
     client: { user: { username: string; email: string } };
   }>>([]);
+
+  const [companyStatistics, setCompanyStatistics] = useState<{
+    totalRecaudado: number;
+    cantidadVendidos: number;
+    productoMasComprado: { name: string; count: number; price: number } | null;
+    mayorComprador: { username: string; total: number; compras: number } | null;
+  } | null>(null);
+
+  const [clientStatistics, setClientStatistics] = useState<{
+    productoFavorito: { name: string; count: number; price: number } | null;
+    rankingPosicion: { posicion: number; totalParticipantes: number; total: number } | null;
+  } | null>(null);
 
   const fetchMyEnvironments = useCallback(async () => {
     try {
@@ -124,25 +139,63 @@ export default function Dashboard() {
     }
   }, []);
 
+  const fetchCompanyStatistics = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.STATISTICS_COMPANY, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCompanyStatistics(data);
+      } else {
+        console.warn('No se pudieron obtener las estadísticas');
+      }
+    } catch (e) {
+      console.error('Error fetching company statistics', e);
+    }
+  }, []);
+
+  const fetchClientStatistics = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.STATISTICS_CLIENT, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setClientStatistics(data);
+      } else {
+        console.warn('No se pudieron obtener las estadísticas del cliente');
+      }
+    } catch (e) {
+      console.error('Error fetching client statistics', e);
+    }
+  }, []);
+
   useEffect(() => {
     if (role === 2) {
       fetchMyEnvironments();
       fetchCompanyRegisters();
+      fetchCompanyStatistics();
     } else if (role === 1) {
       fetchJoinedEnvironment();
       fetchMyRegisters();
+      fetchClientStatistics();
     }
-  }, [role, fetchMyEnvironments, fetchJoinedEnvironment, fetchMyRegisters, fetchCompanyRegisters]);
+  }, [role, fetchMyEnvironments, fetchJoinedEnvironment, fetchMyRegisters, fetchCompanyRegisters, fetchCompanyStatistics, fetchClientStatistics]);
 
   // Refrescar registros cuando la pantalla vuelva a estar en foco
   useFocusEffect(
     useCallback(() => {
       if (role === 1) {
         fetchMyRegisters();
+        fetchClientStatistics();
       } else if (role === 2) {
         fetchCompanyRegisters();
+        fetchCompanyStatistics();
       }
-    }, [role, fetchMyRegisters, fetchCompanyRegisters])
+    }, [role, fetchMyRegisters, fetchClientStatistics, fetchCompanyRegisters, fetchCompanyStatistics])
   );
 
   const handleCrear = () => {
@@ -244,6 +297,11 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Estadísticas para Companies */}
+      {role === 2 && companyStatistics && (
+        <EstadisticasCompany statistics={companyStatistics} />
+      )}
+
       {/* Card de entorno para Clientes */}
       {role === 1 && joinedEnvironment && (
         <EntornoUnidoCard environmentName={joinedEnvironment.name} />
@@ -252,6 +310,16 @@ export default function Dashboard() {
       {/* Estadísticas para Clientes */}
       {role === 1 && myRegisters.length > 0 && (
         <EstadisticasCliente registers={myRegisters} />
+      )}
+
+      {/* Producto Favorito del Cliente */}
+      {role === 1 && clientStatistics && (
+        <ProductoFavorito productoFavorito={clientStatistics.productoFavorito} />
+      )}
+
+      {/* Ranking del Cliente */}
+      {role === 1 && clientStatistics && (
+        <RankingCliente ranking={clientStatistics.rankingPosicion} />
       )}
 
       {/* Registros de compras para Clientes */}

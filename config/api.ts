@@ -42,4 +42,6 @@ export const API_ENDPOINTS = {
   REGISTERS: `${API_BASE_URL}/api/registers`,
   REGISTERS_MINE: `${API_BASE_URL}/api/registers/mine`,
   REGISTERS_COMPANY: `${API_BASE_URL}/api/registers/company`,
+  STATISTICS_COMPANY: `${API_BASE_URL}/api/statistics/company`,
+  STATISTICS_CLIENT: `${API_BASE_URL}/api/statistics/client`,
 };

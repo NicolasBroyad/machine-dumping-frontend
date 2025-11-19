@@ -25,11 +25,16 @@ export default function ListaComprasCompany({ registers }: ListaComprasCompanyPr
     return null;
   }
 
+  // Calcular altura dinámica: cada item mide ~100px, máximo 4 items visibles
+  const itemHeight = 100;
+  const maxVisibleItems = 4;
+  const dynamicHeight = Math.min(registers.length * itemHeight, maxVisibleItems * itemHeight);
+
   return (
     <View style={styles.registersCard}>
       <Text style={styles.registersTitle}>Compras Registradas en el Entorno</Text>
       <ScrollView 
-        style={styles.scrollView}
+        style={[styles.scrollView, { maxHeight: dynamicHeight }]}
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={true}
       >
@@ -71,7 +76,7 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   scrollView: {
-    height: 400,
+    // La altura se establece dinámicamente en el componente
   },
   registerItem: {
     flexDirection: 'row',

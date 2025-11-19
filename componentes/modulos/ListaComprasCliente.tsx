@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
 
 interface Register {
@@ -20,14 +20,21 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
     return null;
   }
 
+  // Calcular altura dinámica: cada item mide ~90px, máximo 4 items visibles
+  const itemHeight = 90;
+  const maxVisibleItems = 4;
+  const dynamicHeight = Math.min(registers.length * itemHeight, maxVisibleItems * itemHeight);
+
   return (
     <View style={styles.registersCard}>
       <Text style={styles.registersTitle}>Mis Compras Registradas</Text>
-      <FlatList
-        data={registers.slice(0, 5)}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.registerItem}>
+      <ScrollView 
+        style={[styles.scrollView, { maxHeight: dynamicHeight }]}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      >
+        {registers.map((item) => (
+          <View key={item.id} style={styles.registerItem}>
             <View style={styles.registerInfo}>
               <Text style={styles.registerProductName}>{item.product.name}</Text>
               <Text style={styles.registerDate}>
@@ -42,14 +49,8 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
             </View>
             <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
           </View>
-        )}
-        scrollEnabled={false}
-      />
-      {registers.length > 5 && (
-        <Text style={styles.moreRegisters}>
-          +{registers.length - 5} compras más
-        </Text>
-      )}
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -67,6 +68,9 @@ const styles = StyleSheet.create({
     ...Typography.h4,
     marginBottom: Spacing.md,
     color: Colors.textPrimary,
+  },
+  scrollView: {
+    // La altura se establece dinámicamente en el componente
   },
   registerItem: {
     flexDirection: 'row',
@@ -94,12 +98,5 @@ const styles = StyleSheet.create({
     ...Typography.bodyBold,
     color: Colors.success,
     marginLeft: Spacing.sm,
-  },
-  moreRegisters: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: Spacing.sm,
-    fontStyle: 'italic',
   },
 });
