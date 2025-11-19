@@ -1,11 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Tabs } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, View, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors, BorderRadius } from "../../constants/theme";
+import { Image, Platform, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BorderRadius, Colors } from "../../constants/theme";
 
 export default function TabsLayout() {
   const [userRole, setUserRole] = useState<number | null>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const loadUserRole = async () => {
@@ -29,8 +31,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.backgroundCard,
           borderTopWidth: 0,
-          height: Platform.OS === 'ios' ? 85 : 65,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+          height: (Platform.OS === 'ios' ? 65 : 55) + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 10,
           elevation: 0,
           shadowOpacity: 0,

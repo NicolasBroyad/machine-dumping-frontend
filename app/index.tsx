@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LoginModal from "../componentes/LoginModal";
 import RegisterModal from "../componentes/RegisterModal";
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../constants/theme";
@@ -44,15 +45,16 @@ export default function Index() {
   // Mostrar loading mientras verifica la sesión
   if (isCheckingSession) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
+      <SafeAreaView style={[styles.container, styles.loadingContainer]}>
+        <StatusBar barStyle="light-content" />
         <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Verificando sesión...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       
       <View style={styles.content}>
@@ -109,7 +111,7 @@ export default function Index() {
         onClose={() => setShowLoginModal(false)}
         onSwitchToRegister={handleSwitchToRegister}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

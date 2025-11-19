@@ -9,6 +9,7 @@ import {
   ScrollView, StatusBar,
   StyleSheet, Text, View
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../../constants/theme";
 
@@ -70,25 +71,28 @@ export default function Perfil() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer} edges={['top']}>
+        <StatusBar barStyle="light-content" />
         <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (!usuario) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer} edges={['top']}>
+        <StatusBar barStyle="light-content" />
         <Text style={styles.errorText}>No se pudo cargar el perfil</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   const tipoUsuario = usuario.role === 1 ? 'Cliente' : 'Compañía';
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
+    <SafeAreaView style={styles.scrollContainer} edges={['top']}>
       <StatusBar barStyle="light-content" />
+      <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Mi Perfil</Text>
 
       <View style={styles.profileCard}>
@@ -126,7 +130,8 @@ export default function Perfil() {
       >
         <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
       </Pressable>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
