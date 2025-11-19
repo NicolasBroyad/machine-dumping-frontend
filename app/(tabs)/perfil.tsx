@@ -107,7 +107,7 @@ export default function Perfil() {
             usuario.role === 1 ? styles.badgeCliente : styles.badgeCompany
           ]}>
             <Text style={styles.badgeText}>
-              {usuario.role === 1 ? '👤' : '🏪'} {tipoUsuario}
+              {tipoUsuario}
             </Text>
           </View>
         </View>
