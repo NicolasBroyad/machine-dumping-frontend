@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 const getApiUrl = () => {
   // Si hay una URL configurada en app.json extra, úsala
   const configuredUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (configuredUrl && configuredUrl !== 'http://192.168.0.208:3000') {
+  if (configuredUrl) {
     return configuredUrl;
   }
 

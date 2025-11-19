@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../constants/theme';
 
 interface CompanyRegister {
   id: number;
@@ -28,11 +28,13 @@ export default function ListaComprasCompany({ registers }: ListaComprasCompanyPr
   return (
     <View style={styles.registersCard}>
       <Text style={styles.registersTitle}>Compras Registradas en el Entorno</Text>
-      <FlatList
-        data={registers.slice(0, 10)}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.companyRegisterItem}>
+      <ScrollView 
+        style={styles.scrollView}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      >
+        {registers.map((item) => (
+          <View key={item.id} style={styles.companyRegisterItem}>
             <View style={styles.registerInfo}>
               <Text style={styles.registerProductName}>{item.product.name}</Text>
               <Text style={styles.clientName}>Cliente: {item.client.user.username}</Text>
@@ -48,14 +50,8 @@ export default function ListaComprasCompany({ registers }: ListaComprasCompanyPr
             </View>
             <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
           </View>
-        )}
-        scrollEnabled={false}
-      />
-      {registers.length > 10 && (
-        <Text style={styles.moreRegisters}>
-          +{registers.length - 10} compras más
-        </Text>
-      )}
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -73,6 +69,9 @@ const styles = StyleSheet.create({
     ...Typography.h4,
     marginBottom: Spacing.md,
     color: Colors.textPrimary,
+  },
+  scrollView: {
+    height: 400,
   },
   registerItem: {
     flexDirection: 'row',
