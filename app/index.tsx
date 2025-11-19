@@ -1,6 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { Image, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import LoginModal from "../componentes/LoginModal";
 import RegisterModal from "../componentes/RegisterModal";
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../constants/theme";
@@ -9,6 +10,27 @@ export default function Index() {
   const router = useRouter();
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    checkExistingSession();
+  }, []);
+
+  const checkExistingSession = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const usuario = await AsyncStorage.getItem('usuario');
+      
+      if (token && usuario) {
+        // Si hay sesión activa, redirigir al dashboard
+        router.replace('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error verificando sesión:', error);
+    } finally {
+      setIsCheckingSession(false);
+    }
+  };
 
   const handleRegisterSuccess = () => {
     setShowLoginModal(true);
@@ -18,6 +40,16 @@ export default function Index() {
     setShowLoginModal(false);
     setShowRegisterModal(true);
   };
+
+  // Mostrar loading mientras verifica la sesión
+  if (isCheckingSession) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Verificando sesión...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -85,6 +117,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
   content: {
     flex: 1,

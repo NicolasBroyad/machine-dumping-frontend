@@ -1,5 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
+import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { API_ENDPOINTS } from '../config/api';
 
 interface RegisterModalProps {
@@ -9,6 +11,7 @@ interface RegisterModalProps {
 }
 
 export default function RegisterModal({ visible, onClose, onSuccess }: RegisterModalProps) {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,7 +44,12 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Éxito", "Cuenta creada correctamente");
+        // Guardar token y usuario en AsyncStorage
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('usuario', JSON.stringify(data.usuario));
+        
+        Alert.alert("Éxito", `Cuenta creada correctamente. Bienvenido ${data.usuario.nombre}!`);
+        
         // Limpiar campos
         setUsername("");
         setEmail("");
@@ -50,6 +58,9 @@ export default function RegisterModal({ visible, onClose, onSuccess }: RegisterM
         setSelectedRole(1);
         onClose();
         onSuccess();
+        
+        // Redirigir al dashboard
+        router.replace('/dashboard');
       } else {
         Alert.alert("Error", data.message || "No se pudo crear la cuenta");
       }
