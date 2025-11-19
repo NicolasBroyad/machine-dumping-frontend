@@ -1,12 +1,16 @@
-import React, { useState } from "react";
-import {
-  StyleSheet, Text, View, Pressable, Alert, ActivityIndicator, ScrollView, StatusBar
-} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import { Colors, BorderRadius, Spacing, Typography, Shadows } from "../../constants/theme";
+import { useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView, StatusBar,
+  StyleSheet, Text, View
+} from "react-native";
+
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../../constants/theme";
 
 interface Usuario {
   nombre: string;
@@ -120,7 +124,7 @@ export default function Perfil() {
         onPress={cerrarSesion}
         accessibilityLabel="Cerrar sesión"
       >
-        <Text style={styles.logoutButtonText}>🚪 Cerrar Sesión</Text>
+        <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
       </Pressable>
     </ScrollView>
   );

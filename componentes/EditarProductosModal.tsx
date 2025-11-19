@@ -1,19 +1,19 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  FlatList,
   ActivityIndicator,
   Alert,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
   TextInput,
-  ScrollView,
+  View
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS } from '../config/api';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../constants/theme';
 
 interface Product {
   id: number;
@@ -112,39 +112,7 @@ export default function EditarProductosModal({ visible, onClose, environmentId, 
     }
   };
 
-  const handleDelete = async (productId: number, productName: string) => {
-    Alert.alert(
-      'Confirmar eliminación',
-      `¿Estás seguro de eliminar "${productName}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const token = await AsyncStorage.getItem('token');
-              const res = await fetch(API_ENDPOINTS.PRODUCT_BY_ID(productId), {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-              });
 
-              if (res.ok) {
-                Alert.alert('Éxito', 'Producto eliminado');
-                fetchProductos();
-              } else {
-                const error = await res.json();
-                Alert.alert('Error', error.message || 'No se pudo eliminar el producto');
-              }
-            } catch (e) {
-              console.error('Error deleting product', e);
-              Alert.alert('Error', 'No se pudo conectar con el servidor');
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const renderItem = ({ item }: { item: Product }) => {
     const isEditing = editingId === item.id;
@@ -188,14 +156,9 @@ export default function EditarProductosModal({ visible, onClose, environmentId, 
           <Text style={styles.productBarcode}>Código: {item.barcode}</Text>
           <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
         </View>
-        <View style={styles.actionButtons}>
-          <Pressable style={styles.editButton} onPress={() => handleStartEdit(item)}>
-            <Text style={styles.editButtonText}>✏️</Text>
-          </Pressable>
-          <Pressable style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
-            <Text style={styles.deleteButtonText}>−</Text>
-          </Pressable>
-        </View>
+        <Pressable style={styles.editButton} onPress={() => handleStartEdit(item)}>
+          <Image source={require('../assets/images/editar-texto.png')} style={styles.editIcon} />
+        </Pressable>
       </View>
     );
   };
@@ -295,10 +258,6 @@ const styles = StyleSheet.create({
     ...Typography.bodyBold,
     color: Colors.success,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
   editButton: {
     backgroundColor: Colors.primary,
     width: 40,
@@ -307,22 +266,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  editButtonText: {
-    fontSize: 20,
-  },
-  deleteButton: {
-    backgroundColor: Colors.error,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deleteButtonText: {
-    color: Colors.white,
-    fontSize: 28,
-    fontWeight: '700',
-    lineHeight: 28,
+  editIcon: {
+    width: 20,
+    height: 20,
+    tintColor: Colors.white,
   },
   editingItem: {
     backgroundColor: Colors.surface,

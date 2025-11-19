@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View, StatusBar } from "react-native";
 import { useRouter } from "expo-router";
-import RegisterModal from "../componentes/RegisterModal";
+import React, { useState } from "react";
+import { Image, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import LoginModal from "../componentes/LoginModal";
-import { Colors, BorderRadius, Spacing, Typography, Shadows } from "../constants/theme";
+import RegisterModal from "../componentes/RegisterModal";
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from "../constants/theme";
 
 export default function Index() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function Index() {
         <View style={styles.logoContainer}>
           <View style={styles.logoGlow}>
             <Image
-              source={require('../assets/images/icon.png')}
+              source={require('../assets/images/maquina-de-dulces.png')}
               style={styles.logo}
               resizeMode="contain"
             />

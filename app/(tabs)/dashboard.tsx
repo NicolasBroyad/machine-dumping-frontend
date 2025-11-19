@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Platform, StyleSheet, Text, View, Pressable, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { API_ENDPOINTS } from '../../config/api';
-import CrearEntornoModal from '../../componentes/CrearEntornoModal';
-import CargarProductosModal from '../../componentes/CargarProductosModal';
-import EditarProductosModal from '../../componentes/EditarProductosModal';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BarcodeScannerModal from '../../componentes/BarcodeScannerModal';
+import CargarProductosModal from '../../componentes/CargarProductosModal';
 import ConfirmarProductoModal from '../../componentes/ConfirmarProductoModal';
+import CrearEntornoModal from '../../componentes/CrearEntornoModal';
+import EditarProductosModal from '../../componentes/EditarProductosModal';
 import UnirseEntornoModal from '../../componentes/UnirseEntornoModal';
 import EntornoCard from '../../componentes/modulos/EntornoCard';
 import EntornoUnidoCard from '../../componentes/modulos/EntornoUnidoCard';
 import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
 import EstadisticasCompany from '../../componentes/modulos/EstadisticasCompany';
-import ProductoFavorito from '../../componentes/modulos/ProductoFavorito';
-import RankingCliente from '../../componentes/modulos/RankingCliente';
 import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
 import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
-import { useCallback } from 'react';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import ProductoFavorito from '../../componentes/modulos/ProductoFavorito';
+import RankingCliente from '../../componentes/modulos/RankingCliente';
+import { API_ENDPOINTS } from '../../config/api';
+
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../constants/theme';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -44,20 +44,20 @@ export default function Dashboard() {
     loadUser();
   }, []);
 
-  const [myEnvironments, setMyEnvironments] = useState<Array<{ id: number; name: string }>>([]);
+  const [myEnvironments, setMyEnvironments] = useState<{ id: number; name: string }[]>([]);
   const [joinedEnvironment, setJoinedEnvironment] = useState<{ id: number; name: string } | null>(null);
-  const [myRegisters, setMyRegisters] = useState<Array<{
+  const [myRegisters, setMyRegisters] = useState<{
     id: number;
     datetime: string;
     product: { name: string; price: number };
     environment: { name: string };
-  }>>([]);
-  const [companyRegisters, setCompanyRegisters] = useState<Array<{
+  }[]>([]);
+  const [companyRegisters, setCompanyRegisters] = useState<{
     id: number;
     datetime: string;
     product: { name: string; price: number };
     client: { user: { username: string; email: string } };
-  }>>([]);
+  }[]>([]);
 
   const [companyStatistics, setCompanyStatistics] = useState<{
     totalRecaudado: number;
@@ -344,7 +344,7 @@ export default function Dashboard() {
               onPress={handleCrear} 
               accessibilityLabel="Crear entorno"
             >
-              <Text style={styles.buttonText}>🏢 Crear entorno</Text>
+              <Text style={styles.buttonText}>Crear entorno</Text>
             </Pressable>
           )}
           <CrearEntornoModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreate={handleCreateEntorno} />
@@ -385,7 +385,7 @@ export default function Dashboard() {
               onPress={handleUnirse} 
               accessibilityLabel="Unirse a un entorno"
             >
-              <Text style={styles.buttonText}>🔗 Unirse a un entorno</Text>
+              <Text style={styles.buttonText}>Unirse a un entorno</Text>
             </Pressable>
           )}
           <UnirseEntornoModal 
