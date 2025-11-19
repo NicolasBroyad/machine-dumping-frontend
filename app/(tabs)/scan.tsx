@@ -3,12 +3,13 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Pressable, StyleSheet, Text, View, Alert, ActivityIndicator } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductoInfoModal from '../../componentes/ProductoInfoModal';
 import { API_ENDPOINTS } from '../../config/api';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Product {
   id: number;
@@ -27,9 +28,17 @@ export default function App() {
   const [hasEnvironment, setHasEnvironment] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Verificar estado inicial
   useEffect(() => {
     checkUserStatus();
   }, []);
+
+  // Refrescar cuando la pantalla vuelve a estar en foco
+  useFocusEffect(
+    useCallback(() => {
+      checkUserStatus();
+    }, [])
+  );
 
   const checkUserStatus = async () => {
     try {
@@ -138,8 +147,8 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.warningText}>
           {!isClient 
-            ? '🔒 Esta función solo está disponible para clientes' 
-            : '🏢 Debes unirte a un entorno para escanear productos'}
+            ? 'Esta función solo está disponible para clientes' 
+            : 'Debes unirte a un entorno para escanear productos'}
         </Text>
       </View>
     );
