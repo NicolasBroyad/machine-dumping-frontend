@@ -1,33 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  FlatList,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_ENDPOINTS } from '../config/api';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { API_ENDPOINTS } from "../config/api";
+import {
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
+} from "../constants/theme";
 
 interface Environment {
   id: number;
   name: string;
   companyName: string;
+  points?: number;
 }
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onJoin: (env: Environment) => void;
+  joinedEnvironmentIds?: number[]; // IDs de entornos a los que ya está unido
 }
 
-export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) {
+export default function UnirseEntornoModal({
+  visible,
+  onClose,
+  onJoin,
+  joinedEnvironmentIds = [],
+}: Props) {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Filtrar entornos a los que ya está unido
+  const availableEnvironments = environments.filter(
+    (env) => !joinedEnvironmentIds.includes(env.id),
+  );
 
   useEffect(() => {
     if (visible) {
@@ -38,7 +56,7 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
   const fetchEnvironments = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_ALL, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -46,11 +64,11 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
         const data = await res.json();
         setEnvironments(data || []);
       } else {
-        Alert.alert('Error', 'No se pudieron cargar los entornos');
+        Alert.alert("Error", "No se pudieron cargar los entornos");
       }
     } catch (e) {
-      console.error('Error fetching environments', e);
-      Alert.alert('Error', 'No se pudo conectar con el servidor');
+      console.error("Error fetching environments", e);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
     } finally {
       setLoading(false);
     }
@@ -58,11 +76,11 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
 
   const handleJoin = async (env: Environment) => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.JOIN_ENVIRONMENT, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ environmentId: env.id }),
@@ -71,14 +89,20 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
       const data = await res.json();
 
       if (res.ok) {
-        Alert.alert('¡Éxito!', `Te has unido al entorno "${env.name}"`);
-        onJoin(env);
+        Alert.alert("¡Éxito!", `Te has unido al entorno "${env.name}"`);
+        // Pasar el entorno con la info completa del backend
+        onJoin({
+          id: data.environment?.id || env.id,
+          name: data.environment?.name || env.name,
+          companyName: data.environment?.companyName || env.companyName,
+          points: data.environment?.points || 0,
+        });
       } else {
-        Alert.alert('Error', data.message || 'No se pudo unir al entorno');
+        Alert.alert("Error", data.message || "No se pudo unir al entorno");
       }
     } catch (e) {
-      console.error('Error joining environment', e);
-      Alert.alert('Error', 'No se pudo conectar con el servidor');
+      console.error("Error joining environment", e);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
     }
   };
 
@@ -101,12 +125,20 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
           <Text style={styles.title}>Selecciona un entorno</Text>
 
           {loading ? (
-            <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
-          ) : environments.length === 0 ? (
-            <Text style={styles.emptyText}>No hay entornos disponibles</Text>
+            <ActivityIndicator
+              size="large"
+              color={Colors.primary}
+              style={styles.loader}
+            />
+          ) : availableEnvironments.length === 0 ? (
+            <Text style={styles.emptyText}>
+              {environments.length === 0
+                ? "No hay entornos disponibles"
+                : "Ya estás unido a todos los entornos disponibles"}
+            </Text>
           ) : (
             <FlatList
-              data={environments}
+              data={availableEnvironments}
               renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
               style={styles.list}
@@ -125,13 +157,13 @@ export default function UnirseEntornoModal({ visible, onClose, onJoin }: Props) 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
-    width: '85%',
-    maxHeight: '70%',
+    width: "85%",
+    maxHeight: "70%",
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
@@ -141,14 +173,14 @@ const styles = StyleSheet.create({
     ...Typography.h3,
     color: Colors.textPrimary,
     marginBottom: Spacing.lg,
-    textAlign: 'center',
+    textAlign: "center",
   },
   loader: {
     marginVertical: Spacing.xxl,
   },
   emptyText: {
     ...Typography.body,
-    textAlign: 'center',
+    textAlign: "center",
     color: Colors.textTertiary,
     marginVertical: Spacing.xxl,
   },
@@ -156,9 +188,9 @@ const styles = StyleSheet.create({
     maxHeight: 300,
   },
   envItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: Spacing.md,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.md,
@@ -183,15 +215,15 @@ const styles = StyleSheet.create({
   joinButtonText: {
     ...Typography.caption,
     color: Colors.white,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   cancelButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 2,
     borderColor: Colors.surfaceLight,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.md,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: Spacing.md,
   },
   cancelButtonText: {

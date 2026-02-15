@@ -1,26 +1,40 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BarcodeScannerModal from '../../componentes/BarcodeScannerModal';
-import CargarProductosModal from '../../componentes/CargarProductosModal';
-import ConfirmarProductoModal from '../../componentes/ConfirmarProductoModal';
-import CrearEntornoModal from '../../componentes/CrearEntornoModal';
-import EditarProductosModal from '../../componentes/EditarProductosModal';
-import UnirseEntornoModal from '../../componentes/UnirseEntornoModal';
-import EntornoCard from '../../componentes/modulos/EntornoCard';
-import EntornoUnidoCard from '../../componentes/modulos/EntornoUnidoCard';
-import EstadisticasCliente from '../../componentes/modulos/EstadisticasCliente';
-import EstadisticasCompany from '../../componentes/modulos/EstadisticasCompany';
-import ListaComprasCliente from '../../componentes/modulos/ListaComprasCliente';
-import ListaComprasCompany from '../../componentes/modulos/ListaComprasCompany';
-import ProductoFavorito from '../../componentes/modulos/ProductoFavorito';
-import RankingCliente from '../../componentes/modulos/RankingCliente';
-import { API_ENDPOINTS } from '../../config/api';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import BarcodeScannerModal from "../../componentes/BarcodeScannerModal";
+import CargarProductosModal from "../../componentes/CargarProductosModal";
+import ConfirmarProductoModal from "../../componentes/ConfirmarProductoModal";
+import CrearEntornoModal from "../../componentes/CrearEntornoModal";
+import EditarProductosModal from "../../componentes/EditarProductosModal";
+import UnirseEntornoModal from "../../componentes/UnirseEntornoModal";
+import EntornoCard from "../../componentes/modulos/EntornoCard";
+import EntornoUnidoCard from "../../componentes/modulos/EntornoUnidoCard";
+import EstadisticasCliente from "../../componentes/modulos/EstadisticasCliente";
+import EstadisticasCompany from "../../componentes/modulos/EstadisticasCompany";
+import ListaComprasCliente from "../../componentes/modulos/ListaComprasCliente";
+import ListaComprasCompany from "../../componentes/modulos/ListaComprasCompany";
+import ProductoFavorito from "../../componentes/modulos/ProductoFavorito";
+import RankingCliente from "../../componentes/modulos/RankingCliente";
+import { API_ENDPOINTS } from "../../config/api";
 
-import { BorderRadius, Colors, Shadows, Spacing, Typography } from '../../constants/theme';
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "../../constants/theme";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -30,14 +44,14 @@ export default function Dashboard() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const raw = await AsyncStorage.getItem('usuario');
+        const raw = await AsyncStorage.getItem("usuario");
         if (raw) {
           const usuario = JSON.parse(raw);
           // Esperamos que el objeto tenga la propiedad `role` numérica (1=Cliente, 2=Vendedor/Company)
           setRole(usuario.role ?? null);
         }
       } catch (e) {
-        console.error('Error leyendo usuario desde AsyncStorage', e);
+        console.error("Error leyendo usuario desde AsyncStorage", e);
       } finally {
         setLoading(false);
       }
@@ -45,20 +59,28 @@ export default function Dashboard() {
     loadUser();
   }, []);
 
-  const [myEnvironments, setMyEnvironments] = useState<{ id: number; name: string }[]>([]);
-  const [joinedEnvironment, setJoinedEnvironment] = useState<{ id: number; name: string } | null>(null);
-  const [myRegisters, setMyRegisters] = useState<{
-    id: number;
-    datetime: string;
-    product: { name: string; price: number };
-    environment: { name: string };
-  }[]>([]);
-  const [companyRegisters, setCompanyRegisters] = useState<{
-    id: number;
-    datetime: string;
-    product: { name: string; price: number };
-    client: { user: { username: string; email: string } };
-  }[]>([]);
+  const [myEnvironments, setMyEnvironments] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [joinedEnvironments, setJoinedEnvironments] = useState<
+    { id: number; name: string; companyName?: string; points?: number }[]
+  >([]);
+  const [myRegisters, setMyRegisters] = useState<
+    {
+      id: number;
+      datetime: string;
+      product: { name: string; price: number };
+      environment: { name: string };
+    }[]
+  >([]);
+  const [companyRegisters, setCompanyRegisters] = useState<
+    {
+      id: number;
+      datetime: string;
+      product: { name: string; price: number };
+      client: { user: { username: string; email: string } };
+    }[]
+  >([]);
 
   const [companyStatistics, setCompanyStatistics] = useState<{
     totalRecaudado: number;
@@ -69,12 +91,25 @@ export default function Dashboard() {
 
   const [clientStatistics, setClientStatistics] = useState<{
     productoFavorito: { name: string; count: number; price: number } | null;
-    rankingPosicion: { posicion: number; totalParticipantes: number; total: number } | null;
+    rankingPosicion: {
+      posicion: number;
+      totalParticipantes: number;
+      total: number;
+    } | null;
   } | null>(null);
+
+  // Estado para el selector de entornos
+  const [selectedEnvironment, setSelectedEnvironment] = useState<{
+    id: number;
+    name: string;
+    companyName?: string;
+    points?: number;
+  } | null>(null);
+  const [envDropdownOpen, setEnvDropdownOpen] = useState(false);
 
   const fetchMyEnvironments = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_MINE, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -82,33 +117,38 @@ export default function Dashboard() {
         const data = await res.json();
         setMyEnvironments(data || []);
       } else {
-        console.warn('No se pudieron obtener environments');
+        console.warn("No se pudieron obtener environments");
       }
     } catch (e) {
-      console.error('Error fetching environments', e);
+      console.error("Error fetching environments", e);
     }
   }, []);
 
-  const fetchJoinedEnvironment = useCallback(async () => {
+  const fetchJoinedEnvironments = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.ENVIRONMENTS_JOINED, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        setJoinedEnvironment(data.environment || null);
+        const envs = data.environments || [];
+        setJoinedEnvironments(envs);
+        // Seleccionar el primer entorno automáticamente si no hay ninguno seleccionado
+        if (envs.length > 0 && !selectedEnvironment) {
+          setSelectedEnvironment(envs[0]);
+        }
       } else {
-        console.warn('No se pudo obtener el entorno unido');
+        console.warn("No se pudieron obtener los entornos unidos");
       }
     } catch (e) {
-      console.error('Error fetching joined environment', e);
+      console.error("Error fetching joined environments", e);
     }
-  }, []);
+  }, [selectedEnvironment]);
 
   const fetchMyRegisters = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.REGISTERS_MINE, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -116,16 +156,16 @@ export default function Dashboard() {
         const data = await res.json();
         setMyRegisters(data || []);
       } else {
-        console.warn('No se pudieron obtener los registros');
+        console.warn("No se pudieron obtener los registros");
       }
     } catch (e) {
-      console.error('Error fetching registers', e);
+      console.error("Error fetching registers", e);
     }
   }, []);
 
   const fetchCompanyRegisters = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.REGISTERS_COMPANY, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -133,16 +173,16 @@ export default function Dashboard() {
         const data = await res.json();
         setCompanyRegisters(data || []);
       } else {
-        console.warn('No se pudieron obtener los registros de la company');
+        console.warn("No se pudieron obtener los registros de la company");
       }
     } catch (e) {
-      console.error('Error fetching company registers', e);
+      console.error("Error fetching company registers", e);
     }
   }, []);
 
   const fetchCompanyStatistics = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       const res = await fetch(API_ENDPOINTS.STATISTICS_COMPANY, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -150,27 +190,30 @@ export default function Dashboard() {
         const data = await res.json();
         setCompanyStatistics(data);
       } else {
-        console.warn('No se pudieron obtener las estadísticas');
+        console.warn("No se pudieron obtener las estadísticas");
       }
     } catch (e) {
-      console.error('Error fetching company statistics', e);
+      console.error("Error fetching company statistics", e);
     }
   }, []);
 
-  const fetchClientStatistics = useCallback(async () => {
+  const fetchClientStatistics = useCallback(async (environmentId?: number) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const res = await fetch(API_ENDPOINTS.STATISTICS_CLIENT, {
+      const token = await AsyncStorage.getItem("token");
+      const url = environmentId
+        ? API_ENDPOINTS.STATISTICS_CLIENT_BY_ENV(environmentId)
+        : API_ENDPOINTS.STATISTICS_CLIENT;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setClientStatistics(data);
       } else {
-        console.warn('No se pudieron obtener las estadísticas del cliente');
+        console.warn("No se pudieron obtener las estadísticas del cliente");
       }
     } catch (e) {
-      console.error('Error fetching client statistics', e);
+      console.error("Error fetching client statistics", e);
     }
   }, []);
 
@@ -180,23 +223,45 @@ export default function Dashboard() {
       fetchCompanyRegisters();
       fetchCompanyStatistics();
     } else if (role === 1) {
-      fetchJoinedEnvironment();
+      fetchJoinedEnvironments();
       fetchMyRegisters();
-      fetchClientStatistics();
     }
-  }, [role, fetchMyEnvironments, fetchJoinedEnvironment, fetchMyRegisters, fetchCompanyRegisters, fetchCompanyStatistics, fetchClientStatistics]);
+  }, [
+    role,
+    fetchMyEnvironments,
+    fetchJoinedEnvironments,
+    fetchMyRegisters,
+    fetchCompanyRegisters,
+    fetchCompanyStatistics,
+  ]);
+
+  // Recargar estadísticas cuando cambie el entorno seleccionado
+  useEffect(() => {
+    if (role === 1 && selectedEnvironment) {
+      fetchClientStatistics(selectedEnvironment.id);
+    }
+  }, [selectedEnvironment, role, fetchClientStatistics]);
 
   // Refrescar registros cuando la pantalla vuelva a estar en foco
   useFocusEffect(
     useCallback(() => {
       if (role === 1) {
         fetchMyRegisters();
-        fetchClientStatistics();
+        if (selectedEnvironment) {
+          fetchClientStatistics(selectedEnvironment.id);
+        }
       } else if (role === 2) {
         fetchCompanyRegisters();
         fetchCompanyStatistics();
       }
-    }, [role, fetchMyRegisters, fetchClientStatistics, fetchCompanyRegisters, fetchCompanyStatistics])
+    }, [
+      role,
+      fetchMyRegisters,
+      fetchClientStatistics,
+      fetchCompanyRegisters,
+      fetchCompanyStatistics,
+      selectedEnvironment,
+    ]),
   );
 
   const handleCrear = () => {
@@ -210,7 +275,7 @@ export default function Dashboard() {
   const [editarProductosVisible, setEditarProductosVisible] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
   const [confirmarVisible, setConfirmarVisible] = useState(false);
-  const [scannedBarcode, setScannedBarcode] = useState('');
+  const [scannedBarcode, setScannedBarcode] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleOpenScanner = () => {
@@ -226,13 +291,14 @@ export default function Dashboard() {
 
   const handleConfirmProduct = async (name: string, price: string) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const environmentId = myEnvironments.length > 0 ? myEnvironments[0].id : 0;
-      
+      const token = await AsyncStorage.getItem("token");
+      const environmentId =
+        myEnvironments.length > 0 ? myEnvironments[0].id : 0;
+
       const res = await fetch(API_ENDPOINTS.PRODUCTS, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -246,16 +312,16 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        Alert.alert('Producto creado', `${name} ha sido agregado al entorno`);
+        Alert.alert("Producto creado", `${name} ha sido agregado al entorno`);
         setConfirmarVisible(false);
         setCargarProductosVisible(true); // Volver a abrir el modal de productos
-        setRefreshTrigger(prev => prev + 1); // Trigger refresh
+        setRefreshTrigger((prev) => prev + 1); // Trigger refresh
       } else {
-        Alert.alert('Error', data.message || 'No se pudo crear el producto');
+        Alert.alert("Error", data.message || "No se pudo crear el producto");
       }
     } catch (e) {
-      console.error('Error creando producto', e);
-      Alert.alert('Error', 'No se pudo conectar con el servidor');
+      console.error("Error creando producto", e);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
     }
   };
 
@@ -264,17 +330,56 @@ export default function Dashboard() {
     setModalVisible(false);
     // Si create retorna un objeto completo, refrescamos
     fetchMyEnvironments();
-    Alert.alert('Entorno creado', `Nombre: ${env.name}`);
+    Alert.alert("Entorno creado", `Nombre: ${env.name}`);
   };
 
   const handleUnirse = () => {
     setUnirseModalVisible(true);
   };
 
-  const handleJoinEnvironment = (env: { id: number; name: string }) => {
+  const handleJoinEnvironment = (env: {
+    id: number;
+    name: string;
+    companyName?: string;
+    points?: number;
+  }) => {
     setUnirseModalVisible(false);
-    setJoinedEnvironment(env);
-    Alert.alert('¡Éxito!', `Te has unido al entorno "${env.name}"`);
+    setJoinedEnvironments((prev) => [...prev, env]);
+    // Refrescar estadísticas después de unirse
+    fetchClientStatistics();
+  };
+
+  const handleLeaveEnvironment = async (environmentId: number) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await fetch(API_ENDPOINTS.LEAVE_ENVIRONMENT(environmentId), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        // Remover el entorno de la lista local
+        const updatedEnvs = joinedEnvironments.filter(
+          (env) => env.id !== environmentId,
+        );
+        setJoinedEnvironments(updatedEnvs);
+        // Si el entorno eliminado era el seleccionado, seleccionar otro
+        if (selectedEnvironment?.id === environmentId) {
+          setSelectedEnvironment(
+            updatedEnvs.length > 0 ? updatedEnvs[0] : null,
+          );
+        }
+        Alert.alert("Éxito", "Has abandonado el entorno");
+        // Refrescar estadísticas
+        fetchClientStatistics();
+      } else {
+        const data = await res.json();
+        Alert.alert("Error", data.message || "No se pudo abandonar el entorno");
+      }
+    } catch (e) {
+      console.error("Error leaving environment", e);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
+    }
   };
 
   if (loading) {
@@ -286,117 +391,255 @@ export default function Dashboard() {
   }
 
   return (
-    <SafeAreaView style={styles.scrollContainer} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={styles.scrollContainer}
+      edges={["top", "left", "right"]}
+    >
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Dashboard</Text>
 
-      {/* Card de entorno para Companies */}
-      {role === 2 && myEnvironments.length > 0 && (
-        <EntornoCard
-          environmentName={myEnvironments[0].name}
-          onCargarProductos={() => setCargarProductosVisible(true)}
-          onEditarProductos={() => setEditarProductosVisible(true)}
-        />
-      )}
+        {/* Card de entorno para Companies */}
+        {role === 2 && myEnvironments.length > 0 && (
+          <EntornoCard
+            environmentName={myEnvironments[0].name}
+            onCargarProductos={() => setCargarProductosVisible(true)}
+            onEditarProductos={() => setEditarProductosVisible(true)}
+          />
+        )}
 
-      {/* Estadísticas para Companies */}
-      {role === 2 && companyStatistics && (
-        <EstadisticasCompany statistics={companyStatistics} />
-      )}
+        {/* Estadísticas para Companies */}
+        {role === 2 && companyStatistics && (
+          <EstadisticasCompany statistics={companyStatistics} />
+        )}
 
-      {/* Card de entorno para Clientes */}
-      {role === 1 && joinedEnvironment && (
-        <EntornoUnidoCard environmentName={joinedEnvironment.name} />
-      )}
+        {/* Selector de entornos para Clientes */}
+        {role === 1 && joinedEnvironments.length > 0 && (
+          <View style={{ width: "100%" }}>
+            <Text style={styles.sectionTitle}>
+              Mis Entornos ({joinedEnvironments.length})
+            </Text>
 
-      {/* Estadísticas para Clientes */}
-      {role === 1 && myRegisters.length > 0 && (
-        <EstadisticasCliente registers={myRegisters} />
-      )}
-
-      {/* Producto Favorito del Cliente */}
-      {role === 1 && clientStatistics && (
-        <ProductoFavorito productoFavorito={clientStatistics.productoFavorito} />
-      )}
-
-      {/* Ranking del Cliente */}
-      {role === 1 && clientStatistics && (
-        <RankingCliente ranking={clientStatistics.rankingPosicion} />
-      )}
-
-      {/* Registros de compras para Clientes */}
-      {role === 1 && (
-        <ListaComprasCliente registers={myRegisters} />
-      )}
-
-      {/* Registros de compras para Companies */}
-      {role === 2 && (
-        <ListaComprasCompany registers={companyRegisters} />
-      )}
-
-      {role === 2 ? (
-        <>
-          {/* Solo mostrar el botón si no hay entornos creados */}
-          {myEnvironments.length === 0 && (
-            <Pressable 
-              style={({ pressed }) => [
-                styles.button,
-                pressed && styles.buttonPressed
-              ]} 
-              onPress={handleCrear} 
-              accessibilityLabel="Crear entorno"
+            {/* Selector desplegable */}
+            <Pressable
+              style={styles.envSelector}
+              onPress={() => setEnvDropdownOpen(!envDropdownOpen)}
             >
-              <Text style={styles.buttonText}>Crear entorno</Text>
+              <View style={styles.envSelectorContent}>
+                <Text style={styles.envSelectorText}>
+                  {selectedEnvironment?.name || "Seleccionar entorno"}
+                </Text>
+                {selectedEnvironment?.companyName && (
+                  <Text style={styles.envSelectorSubtext}>
+                    {selectedEnvironment.companyName}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.envSelectorRight}>
+                {selectedEnvironment?.points !== undefined && (
+                  <View style={styles.pointsBadgeSmall}>
+                    <Text style={styles.pointsTextSmall}>
+                      {selectedEnvironment.points} pts
+                    </Text>
+                  </View>
+                )}
+                <Text style={styles.dropdownArrow}>
+                  {envDropdownOpen ? "▲" : "▼"}
+                </Text>
+              </View>
             </Pressable>
+
+            {/* Lista desplegable de entornos */}
+            {envDropdownOpen && (
+              <View style={styles.envDropdown}>
+                <ScrollView
+                  style={styles.envDropdownScroll}
+                  nestedScrollEnabled
+                >
+                  {joinedEnvironments.map((env) => (
+                    <Pressable
+                      key={env.id}
+                      style={[
+                        styles.envDropdownItem,
+                        selectedEnvironment?.id === env.id &&
+                          styles.envDropdownItemSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedEnvironment(env);
+                        setEnvDropdownOpen(false);
+                      }}
+                    >
+                      <View style={styles.envDropdownItemContent}>
+                        <Text style={styles.envDropdownItemName}>
+                          {env.name}
+                        </Text>
+                        {env.companyName && (
+                          <Text style={styles.envDropdownItemCompany}>
+                            {env.companyName}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.envDropdownItemRight}>
+                        {env.points !== undefined && (
+                          <Text style={styles.envDropdownItemPoints}>
+                            {env.points} pts
+                          </Text>
+                        )}
+                        <Pressable
+                          style={styles.leaveButtonSmall}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            Alert.alert(
+                              "Abandonar entorno",
+                              `¿Estás seguro de que deseas abandonar "${env.name}"?`,
+                              [
+                                { text: "Cancelar", style: "cancel" },
+                                {
+                                  text: "Abandonar",
+                                  style: "destructive",
+                                  onPress: () => handleLeaveEnvironment(env.id),
+                                },
+                              ],
+                            );
+                          }}
+                        >
+                          <Text style={styles.leaveButtonSmallText}>✕</Text>
+                        </Pressable>
+                      </View>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Card del entorno seleccionado */}
+            {selectedEnvironment && !envDropdownOpen && (
+              <EntornoUnidoCard
+                environmentId={selectedEnvironment.id}
+                environmentName={selectedEnvironment.name}
+                companyName={selectedEnvironment.companyName}
+                points={selectedEnvironment.points}
+                onLeave={handleLeaveEnvironment}
+              />
+            )}
+          </View>
+        )}
+
+        {/* Estadísticas para Clientes - filtradas por entorno */}
+        {role === 1 &&
+          selectedEnvironment &&
+          myRegisters.filter(
+            (r) => r.environment?.name === selectedEnvironment.name,
+          ).length > 0 && (
+            <EstadisticasCliente
+              registers={myRegisters.filter(
+                (r) => r.environment?.name === selectedEnvironment.name,
+              )}
+            />
           )}
-          <CrearEntornoModal visible={modalVisible} onClose={() => setModalVisible(false)} onCreate={handleCreateEntorno} />
-          <CargarProductosModal 
-            visible={cargarProductosVisible} 
-            onClose={() => setCargarProductosVisible(false)} 
-            environmentName={myEnvironments.length > 0 ? myEnvironments[0].name : ''} 
-            environmentId={myEnvironments.length > 0 ? myEnvironments[0].id : 0}
-            onOpenScanner={handleOpenScanner}
-            refreshTrigger={refreshTrigger}
+
+        {/* Producto Favorito del Cliente */}
+        {role === 1 && clientStatistics && (
+          <ProductoFavorito
+            productoFavorito={clientStatistics.productoFavorito}
           />
-          <EditarProductosModal
-            visible={editarProductosVisible}
-            onClose={() => setEditarProductosVisible(false)}
-            environmentName={myEnvironments.length > 0 ? myEnvironments[0].name : ''}
-            environmentId={myEnvironments.length > 0 ? myEnvironments[0].id : 0}
+        )}
+
+        {/* Ranking del Cliente */}
+        {role === 1 && clientStatistics && (
+          <RankingCliente ranking={clientStatistics.rankingPosicion} />
+        )}
+
+        {/* Registros de compras para Clientes - filtrados por entorno */}
+        {role === 1 && selectedEnvironment && (
+          <ListaComprasCliente
+            registers={myRegisters.filter(
+              (r) => r.environment?.name === selectedEnvironment.name,
+            )}
           />
-          <BarcodeScannerModal
-            visible={scannerVisible}
-            onClose={() => setScannerVisible(false)}
-            onBarcodeScanned={handleBarcodeScanned}
-          />
-          <ConfirmarProductoModal
-            visible={confirmarVisible}
-            onClose={() => setConfirmarVisible(false)}
-            barcode={scannedBarcode}
-            onConfirm={handleConfirmProduct}
-          />
-        </>
-      ) : (
-        <>
-          {!joinedEnvironment && (
-            <Pressable 
+        )}
+
+        {/* Registros de compras para Companies */}
+        {role === 2 && <ListaComprasCompany registers={companyRegisters} />}
+
+        {role === 2 ? (
+          <>
+            {/* Solo mostrar el botón si no hay entornos creados */}
+            {myEnvironments.length === 0 && (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.button,
+                  pressed && styles.buttonPressed,
+                ]}
+                onPress={handleCrear}
+                accessibilityLabel="Crear entorno"
+              >
+                <Text style={styles.buttonText}>Crear entorno</Text>
+              </Pressable>
+            )}
+            <CrearEntornoModal
+              visible={modalVisible}
+              onClose={() => setModalVisible(false)}
+              onCreate={handleCreateEntorno}
+            />
+            <CargarProductosModal
+              visible={cargarProductosVisible}
+              onClose={() => setCargarProductosVisible(false)}
+              environmentName={
+                myEnvironments.length > 0 ? myEnvironments[0].name : ""
+              }
+              environmentId={
+                myEnvironments.length > 0 ? myEnvironments[0].id : 0
+              }
+              onOpenScanner={handleOpenScanner}
+              refreshTrigger={refreshTrigger}
+            />
+            <EditarProductosModal
+              visible={editarProductosVisible}
+              onClose={() => setEditarProductosVisible(false)}
+              environmentName={
+                myEnvironments.length > 0 ? myEnvironments[0].name : ""
+              }
+              environmentId={
+                myEnvironments.length > 0 ? myEnvironments[0].id : 0
+              }
+            />
+            <BarcodeScannerModal
+              visible={scannerVisible}
+              onClose={() => setScannerVisible(false)}
+              onBarcodeScanned={handleBarcodeScanned}
+            />
+            <ConfirmarProductoModal
+              visible={confirmarVisible}
+              onClose={() => setConfirmarVisible(false)}
+              barcode={scannedBarcode}
+              onConfirm={handleConfirmProduct}
+            />
+          </>
+        ) : (
+          <>
+            {/* Siempre mostrar botón para unirse a más entornos */}
+            <Pressable
               style={({ pressed }) => [
                 styles.button,
-                pressed && styles.buttonPressed
-              ]} 
-              onPress={handleUnirse} 
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleUnirse}
               accessibilityLabel="Unirse a un entorno"
             >
-              <Text style={styles.buttonText}>Unirse a un entorno</Text>
+              <Text style={styles.buttonText}>
+                {joinedEnvironments.length === 0
+                  ? "Unirse a un entorno"
+                  : "Unirse a otro entorno"}
+              </Text>
             </Pressable>
-          )}
-          <UnirseEntornoModal 
-            visible={unirseModalVisible} 
-            onClose={() => setUnirseModalVisible(false)}
-            onJoin={handleJoinEnvironment}
-          />
-        </>
-      )}
+            <UnirseEntornoModal
+              visible={unirseModalVisible}
+              onClose={() => setUnirseModalVisible(false)}
+              onJoin={handleJoinEnvironment}
+              joinedEnvironmentIds={joinedEnvironments.map((e) => e.id)}
+            />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -409,28 +652,28 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: Spacing.lg,
-    alignItems: 'center',
+    alignItems: "center",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.background,
   },
   title: {
     ...Typography.h2,
     color: Colors.textPrimary,
     marginBottom: Spacing.xl,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   button: {
     backgroundColor: Colors.primary,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
     borderRadius: BorderRadius.lg,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: Spacing.lg,
-    width: '100%',
+    width: "100%",
     maxWidth: 320,
     ...Shadows.md,
   },
@@ -442,5 +685,113 @@ const styles = StyleSheet.create({
     ...Typography.bodyBold,
     color: Colors.white,
     fontSize: 16,
+  },
+  sectionTitle: {
+    ...Typography.bodyBold,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  envSelector: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    marginBottom: Spacing.sm,
+    ...Shadows.md,
+  },
+  envSelectorContent: {
+    flex: 1,
+  },
+  envSelectorText: {
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
+  },
+  envSelectorSubtext: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  envSelectorRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  pointsBadgeSmall: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+    marginRight: Spacing.sm,
+  },
+  pointsTextSmall: {
+    ...Typography.caption,
+    color: Colors.white,
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  dropdownArrow: {
+    color: Colors.primary,
+    fontSize: 14,
+    marginLeft: Spacing.sm,
+  },
+  envDropdown: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.surfaceLight,
+    marginBottom: Spacing.md,
+    maxHeight: 200,
+    ...Shadows.lg,
+  },
+  envDropdownScroll: {
+    maxHeight: 200,
+  },
+  envDropdownItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surface,
+  },
+  envDropdownItemSelected: {
+    backgroundColor: Colors.surface,
+  },
+  envDropdownItemContent: {
+    flex: 1,
+  },
+  envDropdownItemName: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+  },
+  envDropdownItemCompany: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  envDropdownItemRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  envDropdownItemPoints: {
+    ...Typography.caption,
+    color: Colors.primary,
+    marginRight: Spacing.sm,
+  },
+  leaveButtonSmall: {
+    backgroundColor: "#FF5252",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  leaveButtonSmallText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });

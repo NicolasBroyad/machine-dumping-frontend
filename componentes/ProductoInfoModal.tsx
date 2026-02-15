@@ -1,18 +1,24 @@
-import React from 'react';
+import React from "react";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../constants/theme';
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
+} from "../constants/theme";
 
 interface Product {
   id: number;
   name: string;
   price: number;
   barcode: string;
+  environmentId?: number;
+  environment?: {
+    id: number;
+    name: string;
+  };
+  environmentName?: string;
 }
 
 interface Props {
@@ -22,7 +28,12 @@ interface Props {
   product: Product | null;
 }
 
-export default function ProductoInfoModal({ visible, onClose, onRegisterPurchase, product }: Props) {
+export default function ProductoInfoModal({
+  visible,
+  onClose,
+  onRegisterPurchase,
+  product,
+}: Props) {
   if (!product) return null;
 
   return (
@@ -30,7 +41,7 @@ export default function ProductoInfoModal({ visible, onClose, onRegisterPurchase
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Producto Escaneado</Text>
-          
+
           <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
               <Text style={styles.label}>Código de Barras:</Text>
@@ -46,13 +57,27 @@ export default function ProductoInfoModal({ visible, onClose, onRegisterPurchase
               <Text style={styles.label}>Precio:</Text>
               <Text style={styles.priceValue}>${product.price.toFixed(2)}</Text>
             </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Entorno:</Text>
+              <View style={styles.environmentBadge}>
+                <Text style={styles.environmentText}>
+                  {product.environment?.name ||
+                    product.environmentName ||
+                    "Desconocido"}
+                </Text>
+              </View>
+            </View>
           </View>
 
           <View style={styles.buttonContainer}>
-            <Pressable style={styles.registerButton} onPress={onRegisterPurchase}>
+            <Pressable
+              style={styles.registerButton}
+              onPress={onRegisterPurchase}
+            >
               <Text style={styles.registerButtonText}>Registrar compra</Text>
             </Pressable>
-            
+
             <Pressable style={styles.cancelButton} onPress={onClose}>
               <Text style={styles.cancelButtonText}>Cancelar</Text>
             </Pressable>
@@ -66,12 +91,12 @@ export default function ProductoInfoModal({ visible, onClose, onRegisterPurchase
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
-    width: '85%',
+    width: "85%",
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
@@ -80,7 +105,7 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.h3,
     marginBottom: Spacing.xl,
-    textAlign: 'center',
+    textAlign: "center",
     color: Colors.textPrimary,
   },
   infoContainer: {
@@ -96,7 +121,7 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textSecondary,
     marginBottom: 4,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   value: {
     ...Typography.bodyBold,
@@ -105,7 +130,7 @@ const styles = StyleSheet.create({
   priceValue: {
     ...Typography.h2,
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   buttonContainer: {
     gap: 12,
@@ -114,25 +139,38 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.success,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
-    alignItems: 'center',
+    alignItems: "center",
     ...Shadows.md,
   },
   registerButtonText: {
     ...Typography.h4,
     color: Colors.white,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   cancelButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 2,
     borderColor: Colors.surfaceLight,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelButtonText: {
     ...Typography.h4,
     color: Colors.textSecondary,
-    fontWeight: '700',
+    fontWeight: "700",
+  },
+  environmentBadge: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
+    alignSelf: "flex-start",
+    marginTop: 4,
+  },
+  environmentText: {
+    ...Typography.bodyBold,
+    color: Colors.white,
+    fontSize: 14,
   },
 });

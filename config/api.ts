@@ -1,4 +1,4 @@
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
 
 // Intenta obtener la URL desde app.json extra, si no, detecta automáticamente
 const getApiUrl = () => {
@@ -12,18 +12,18 @@ const getApiUrl = () => {
   if (__DEV__) {
     const hostUri = Constants.expoConfig?.hostUri;
     if (hostUri) {
-      const localIp = hostUri.split(':').shift();
+      const localIp = hostUri.split(":").shift();
       return `http://${localIp}:3000`;
     }
   }
 
   // Fallback para producción
-  return 'http://localhost:3000';
+  return "http://localhost:3000";
 };
 
 export const API_URL = getApiUrl();
 
-console.log('🔗 API URL configurada:', API_URL);
+console.log("🔗 API URL configurada:", API_URL);
 
 export const API_BASE_URL = API_URL;
 
@@ -35,13 +35,19 @@ export const API_ENDPOINTS = {
   ENVIRONMENTS_MINE: `${API_BASE_URL}/api/environments/mine`,
   ENVIRONMENTS_JOINED: `${API_BASE_URL}/api/environments/joined`,
   JOIN_ENVIRONMENT: `${API_BASE_URL}/api/environments/join`,
+  LEAVE_ENVIRONMENT: (environmentId: number) =>
+    `${API_BASE_URL}/api/environments/leave/${environmentId}`,
   PRODUCTS: `${API_BASE_URL}/api/products`,
-  PRODUCTS_SCAN: (barcode: string) => `${API_BASE_URL}/api/products/scan/${barcode}`,
+  PRODUCTS_SCAN: (barcode: string) =>
+    `${API_BASE_URL}/api/products/scan/${barcode}`,
   PRODUCT_BY_ID: (id: number) => `${API_BASE_URL}/api/products/${id}`,
-  PRODUCTS_BY_ENVIRONMENT: (environmentId: number) => `${API_BASE_URL}/api/products/${environmentId}`,
+  PRODUCTS_BY_ENVIRONMENT: (environmentId: number) =>
+    `${API_BASE_URL}/api/products/${environmentId}`,
   REGISTERS: `${API_BASE_URL}/api/registers`,
   REGISTERS_MINE: `${API_BASE_URL}/api/registers/mine`,
   REGISTERS_COMPANY: `${API_BASE_URL}/api/registers/company`,
   STATISTICS_COMPANY: `${API_BASE_URL}/api/statistics/company`,
   STATISTICS_CLIENT: `${API_BASE_URL}/api/statistics/client`,
+  STATISTICS_CLIENT_BY_ENV: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/client?environmentId=${environmentId}`,
 };
