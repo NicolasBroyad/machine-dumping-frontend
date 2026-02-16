@@ -476,7 +476,9 @@ export default function Dashboard() {
               >
                 <View style={styles.envModalContent}>
                   <View style={styles.envModalHeader}>
-                    <Text style={styles.envModalTitle}>Seleccionar Entorno</Text>
+                    <Text style={styles.envModalTitle}>
+                      Seleccionar Entorno
+                    </Text>
                     <Pressable onPress={() => setCompanyEnvDropdownOpen(false)}>
                       <Text style={styles.envModalClose}>✕</Text>
                     </Pressable>
@@ -588,7 +590,9 @@ export default function Dashboard() {
               >
                 <View style={styles.envModalContent}>
                   <View style={styles.envModalHeader}>
-                    <Text style={styles.envModalTitle}>Seleccionar Entorno</Text>
+                    <Text style={styles.envModalTitle}>
+                      Seleccionar Entorno
+                    </Text>
                     <Pressable onPress={() => setEnvDropdownOpen(false)}>
                       <Text style={styles.envModalClose}>✕</Text>
                     </Pressable>
@@ -608,7 +612,9 @@ export default function Dashboard() {
                         }}
                       >
                         <View style={styles.envModalItemContent}>
-                          <Text style={styles.envModalItemName}>{env.name}</Text>
+                          <Text style={styles.envModalItemName}>
+                            {env.name}
+                          </Text>
                           {env.companyName && (
                             <Text style={styles.envModalItemCompany}>
                               {env.companyName}
@@ -631,7 +637,8 @@ export default function Dashboard() {
                                   {
                                     text: "Abandonar",
                                     style: "destructive",
-                                    onPress: () => handleLeaveEnvironment(env.id),
+                                    onPress: () =>
+                                      handleLeaveEnvironment(env.id),
                                   },
                                 ],
                               );
