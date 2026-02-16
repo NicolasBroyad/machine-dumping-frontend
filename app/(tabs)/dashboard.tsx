@@ -17,7 +17,6 @@ import CargarProductosModal from "../../componentes/CargarProductosModal";
 import ConfirmarProductoModal from "../../componentes/ConfirmarProductoModal";
 import CrearEntornoModal from "../../componentes/CrearEntornoModal";
 import EditarProductosModal from "../../componentes/EditarProductosModal";
-import UnirseEntornoModal from "../../componentes/UnirseEntornoModal";
 import EntornoCard from "../../componentes/modulos/EntornoCard";
 import EntornoUnidoCard from "../../componentes/modulos/EntornoUnidoCard";
 import EstadisticasCliente from "../../componentes/modulos/EstadisticasCliente";
@@ -26,6 +25,9 @@ import ListaComprasCliente from "../../componentes/modulos/ListaComprasCliente";
 import ListaComprasCompany from "../../componentes/modulos/ListaComprasCompany";
 import ProductoFavorito from "../../componentes/modulos/ProductoFavorito";
 import RankingCliente from "../../componentes/modulos/RankingCliente";
+import ProductoFavoritoDetalleModal from "../../componentes/ProductoFavoritoDetalleModal";
+import RankingDetalleModal from "../../componentes/RankingDetalleModal";
+import UnirseEntornoModal from "../../componentes/UnirseEntornoModal";
 import { API_ENDPOINTS } from "../../config/api";
 
 import {
@@ -300,6 +302,9 @@ export default function Dashboard() {
   const [editarProductosVisible, setEditarProductosVisible] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
   const [confirmarVisible, setConfirmarVisible] = useState(false);
+  const [rankingDetalleVisible, setRankingDetalleVisible] = useState(false);
+  const [productoFavoritoDetalleVisible, setProductoFavoritoDetalleVisible] =
+    useState(false);
   const [scannedBarcode, setScannedBarcode] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -617,13 +622,32 @@ export default function Dashboard() {
         {role === 1 && clientStatistics && (
           <ProductoFavorito
             productoFavorito={clientStatistics.productoFavorito}
+            onPress={() => setProductoFavoritoDetalleVisible(true)}
           />
         )}
 
+        {/* Modal de Productos Favoritos Detallado */}
+        <ProductoFavoritoDetalleModal
+          visible={productoFavoritoDetalleVisible}
+          onClose={() => setProductoFavoritoDetalleVisible(false)}
+          environmentId={selectedEnvironment?.id || null}
+        />
+
         {/* Ranking del Cliente */}
         {role === 1 && clientStatistics && (
-          <RankingCliente ranking={clientStatistics.rankingPosicion} />
+          <RankingCliente
+            ranking={clientStatistics.rankingPosicion}
+            onPress={() => setRankingDetalleVisible(true)}
+          />
         )}
+
+        {/* Modal de Ranking Detallado */}
+        <RankingDetalleModal
+          visible={rankingDetalleVisible}
+          onClose={() => setRankingDetalleVisible(false)}
+          environmentId={selectedEnvironment?.id || null}
+          miPosicion={clientStatistics?.rankingPosicion?.posicion}
+        />
 
         {/* Registros de compras para Clientes - filtrados por entorno */}
         {role === 1 && selectedEnvironment && (

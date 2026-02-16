@@ -54,4 +54,8 @@ export const API_ENDPOINTS = {
   STATISTICS_CLIENT: `${API_BASE_URL}/api/statistics/client`,
   STATISTICS_CLIENT_BY_ENV: (environmentId: number) =>
     `${API_BASE_URL}/api/statistics/client?environmentId=${environmentId}`,
+  STATISTICS_RANKING: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/ranking/${environmentId}`,
+  STATISTICS_PRODUCTOS_FAVORITOS: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/productos-favoritos/${environmentId}`,
 };
