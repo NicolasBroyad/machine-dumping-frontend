@@ -1,11 +1,11 @@
 import React from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import {
-    BorderRadius,
-    Colors,
-    Shadows,
-    Spacing,
-    Typography,
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
 } from "../../constants/theme";
 
 interface EntornoUnidoCardProps {
@@ -48,11 +48,6 @@ export default function EntornoUnidoCard({
           )}
         </View>
         <View style={styles.rightSection}>
-          {points !== undefined && (
-            <View style={styles.pointsBadge}>
-              <Text style={styles.pointsText}>{points} pts</Text>
-            </View>
-          )}
           {onLeave && (
             <Pressable
               style={({ pressed }) => [

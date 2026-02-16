@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
+    Modal,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -462,35 +463,51 @@ export default function Dashboard() {
               </Text>
             </Pressable>
 
-            {/* Lista desplegable de entornos */}
-            {companyEnvDropdownOpen && (
-              <View style={styles.envDropdown}>
-                <ScrollView
-                  style={styles.envDropdownScroll}
-                  nestedScrollEnabled
-                >
-                  {myEnvironments.map((env) => (
-                    <Pressable
-                      key={env.id}
-                      style={[
-                        styles.envDropdownItem,
-                        selectedCompanyEnv?.id === env.id &&
-                          styles.envDropdownItemSelected,
-                      ]}
-                      onPress={() => {
-                        setSelectedCompanyEnv(env);
-                        setCompanyEnvDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={styles.envDropdownItemName}>{env.name}</Text>
+            {/* Modal de selección de entornos */}
+            <Modal
+              visible={companyEnvDropdownOpen}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setCompanyEnvDropdownOpen(false)}
+            >
+              <Pressable
+                style={styles.envModalOverlay}
+                onPress={() => setCompanyEnvDropdownOpen(false)}
+              >
+                <View style={styles.envModalContent}>
+                  <View style={styles.envModalHeader}>
+                    <Text style={styles.envModalTitle}>Seleccionar Entorno</Text>
+                    <Pressable onPress={() => setCompanyEnvDropdownOpen(false)}>
+                      <Text style={styles.envModalClose}>✕</Text>
                     </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
+                  </View>
+                  <ScrollView style={styles.envModalScroll}>
+                    {myEnvironments.map((env) => (
+                      <Pressable
+                        key={env.id}
+                        style={[
+                          styles.envModalItem,
+                          selectedCompanyEnv?.id === env.id &&
+                            styles.envModalItemSelected,
+                        ]}
+                        onPress={() => {
+                          setSelectedCompanyEnv(env);
+                          setCompanyEnvDropdownOpen(false);
+                        }}
+                      >
+                        <Text style={styles.envModalItemName}>{env.name}</Text>
+                        {selectedCompanyEnv?.id === env.id && (
+                          <Text style={styles.envModalItemCheck}>✓</Text>
+                        )}
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </View>
+              </Pressable>
+            </Modal>
 
             {/* Card del entorno seleccionado */}
-            {selectedCompanyEnv && !companyEnvDropdownOpen && (
+            {selectedCompanyEnv && (
               <EntornoCard
                 environmentName={selectedCompanyEnv.name}
                 onCargarProductos={() => setCargarProductosVisible(true)}
@@ -552,84 +569,86 @@ export default function Dashboard() {
                 )}
               </View>
               <View style={styles.envSelectorRight}>
-                {selectedEnvironment?.points !== undefined && (
-                  <View style={styles.pointsBadgeSmall}>
-                    <Text style={styles.pointsTextSmall}>
-                      {selectedEnvironment.points} pts
-                    </Text>
-                  </View>
-                )}
                 <Text style={styles.dropdownArrow}>
                   {envDropdownOpen ? "▲" : "▼"}
                 </Text>
               </View>
             </Pressable>
 
-            {/* Lista desplegable de entornos */}
-            {envDropdownOpen && (
-              <View style={styles.envDropdown}>
-                <ScrollView
-                  style={styles.envDropdownScroll}
-                  nestedScrollEnabled
-                >
-                  {joinedEnvironments.map((env) => (
-                    <Pressable
-                      key={env.id}
-                      style={[
-                        styles.envDropdownItem,
-                        selectedEnvironment?.id === env.id &&
-                          styles.envDropdownItemSelected,
-                      ]}
-                      onPress={() => {
-                        setSelectedEnvironment(env);
-                        setEnvDropdownOpen(false);
-                      }}
-                    >
-                      <View style={styles.envDropdownItemContent}>
-                        <Text style={styles.envDropdownItemName}>
-                          {env.name}
-                        </Text>
-                        {env.companyName && (
-                          <Text style={styles.envDropdownItemCompany}>
-                            {env.companyName}
-                          </Text>
-                        )}
-                      </View>
-                      <View style={styles.envDropdownItemRight}>
-                        {env.points !== undefined && (
-                          <Text style={styles.envDropdownItemPoints}>
-                            {env.points} pts
-                          </Text>
-                        )}
-                        <Pressable
-                          style={styles.leaveButtonSmall}
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            Alert.alert(
-                              "Abandonar entorno",
-                              `¿Estás seguro de que deseas abandonar "${env.name}"?`,
-                              [
-                                { text: "Cancelar", style: "cancel" },
-                                {
-                                  text: "Abandonar",
-                                  style: "destructive",
-                                  onPress: () => handleLeaveEnvironment(env.id),
-                                },
-                              ],
-                            );
-                          }}
-                        >
-                          <Text style={styles.leaveButtonSmallText}>✕</Text>
-                        </Pressable>
-                      </View>
+            {/* Modal de selección de entornos */}
+            <Modal
+              visible={envDropdownOpen}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setEnvDropdownOpen(false)}
+            >
+              <Pressable
+                style={styles.envModalOverlay}
+                onPress={() => setEnvDropdownOpen(false)}
+              >
+                <View style={styles.envModalContent}>
+                  <View style={styles.envModalHeader}>
+                    <Text style={styles.envModalTitle}>Seleccionar Entorno</Text>
+                    <Pressable onPress={() => setEnvDropdownOpen(false)}>
+                      <Text style={styles.envModalClose}>✕</Text>
                     </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
+                  </View>
+                  <ScrollView style={styles.envModalScroll}>
+                    {joinedEnvironments.map((env) => (
+                      <Pressable
+                        key={env.id}
+                        style={[
+                          styles.envModalItem,
+                          selectedEnvironment?.id === env.id &&
+                            styles.envModalItemSelected,
+                        ]}
+                        onPress={() => {
+                          setSelectedEnvironment(env);
+                          setEnvDropdownOpen(false);
+                        }}
+                      >
+                        <View style={styles.envModalItemContent}>
+                          <Text style={styles.envModalItemName}>{env.name}</Text>
+                          {env.companyName && (
+                            <Text style={styles.envModalItemCompany}>
+                              {env.companyName}
+                            </Text>
+                          )}
+                        </View>
+                        <View style={styles.envModalItemRight}>
+                          {selectedEnvironment?.id === env.id && (
+                            <Text style={styles.envModalItemCheck}>✓</Text>
+                          )}
+                          <Pressable
+                            style={styles.leaveButtonSmall}
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              Alert.alert(
+                                "Abandonar entorno",
+                                `¿Estás seguro de que deseas abandonar "${env.name}"?`,
+                                [
+                                  { text: "Cancelar", style: "cancel" },
+                                  {
+                                    text: "Abandonar",
+                                    style: "destructive",
+                                    onPress: () => handleLeaveEnvironment(env.id),
+                                  },
+                                ],
+                              );
+                            }}
+                          >
+                            <Text style={styles.leaveButtonSmallText}>✕</Text>
+                          </Pressable>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </View>
+              </Pressable>
+            </Modal>
 
             {/* Card del entorno seleccionado */}
-            {selectedEnvironment && !envDropdownOpen && (
+            {selectedEnvironment && (
               <EntornoUnidoCard
                 environmentId={selectedEnvironment.id}
                 environmentName={selectedEnvironment.name}
@@ -926,10 +945,80 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: Spacing.sm,
   },
   leaveButtonSmallText: {
     color: Colors.white,
     fontSize: 12,
     fontWeight: "bold",
+  },
+  // Estilos para modal de selección de entornos
+  envModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: Spacing.lg,
+  },
+  envModalContent: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    width: "100%",
+    maxWidth: 400,
+    maxHeight: "70%",
+    ...Shadows.lg,
+  },
+  envModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surface,
+  },
+  envModalTitle: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
+  },
+  envModalClose: {
+    fontSize: 20,
+    color: Colors.textSecondary,
+    padding: Spacing.sm,
+  },
+  envModalScroll: {
+    maxHeight: 400,
+  },
+  envModalItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surface,
+  },
+  envModalItemSelected: {
+    backgroundColor: Colors.surface,
+  },
+  envModalItemContent: {
+    flex: 1,
+  },
+  envModalItemName: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    fontWeight: "600",
+  },
+  envModalItemCompany: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  envModalItemRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  envModalItemCheck: {
+    fontSize: 18,
+    color: Colors.success,
+    marginRight: Spacing.sm,
   },
 });
