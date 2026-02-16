@@ -58,4 +58,6 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/api/statistics/ranking/${environmentId}`,
   STATISTICS_PRODUCTOS_FAVORITOS: (environmentId: number) =>
     `${API_BASE_URL}/api/statistics/productos-favoritos/${environmentId}`,
+  STATISTICS_GASTOS_POR_DIA: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/gastos-por-dia/${environmentId}`,
 };

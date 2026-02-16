@@ -27,6 +27,7 @@ import ProductoFavorito from "../../componentes/modulos/ProductoFavorito";
 import RankingCliente from "../../componentes/modulos/RankingCliente";
 import ProductoFavoritoDetalleModal from "../../componentes/ProductoFavoritoDetalleModal";
 import RankingDetalleModal from "../../componentes/RankingDetalleModal";
+import TotalGastadoDetalleModal from "../../componentes/TotalGastadoDetalleModal";
 import UnirseEntornoModal from "../../componentes/UnirseEntornoModal";
 import { API_ENDPOINTS } from "../../config/api";
 
@@ -304,6 +305,8 @@ export default function Dashboard() {
   const [confirmarVisible, setConfirmarVisible] = useState(false);
   const [rankingDetalleVisible, setRankingDetalleVisible] = useState(false);
   const [productoFavoritoDetalleVisible, setProductoFavoritoDetalleVisible] =
+    useState(false);
+  const [totalGastadoDetalleVisible, setTotalGastadoDetalleVisible] =
     useState(false);
   const [scannedBarcode, setScannedBarcode] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -615,8 +618,16 @@ export default function Dashboard() {
               registers={myRegisters.filter(
                 (r) => r.environment?.name === selectedEnvironment.name,
               )}
+              onTotalGastadoPress={() => setTotalGastadoDetalleVisible(true)}
             />
           )}
+
+        {/* Modal de Total Gastado Detallado */}
+        <TotalGastadoDetalleModal
+          visible={totalGastadoDetalleVisible}
+          onClose={() => setTotalGastadoDetalleVisible(false)}
+          environmentId={selectedEnvironment?.id || null}
+        />
 
         {/* Producto Favorito del Cliente */}
         {role === 1 && clientStatistics && (

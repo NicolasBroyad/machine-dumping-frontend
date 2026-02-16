@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
     BorderRadius,
     Colors,
@@ -20,20 +20,27 @@ interface Register {
 
 interface EstadisticasClienteProps {
   registers: Register[];
+  onTotalGastadoPress?: () => void;
 }
 
 export default function EstadisticasCliente({
   registers,
+  onTotalGastadoPress,
 }: EstadisticasClienteProps) {
   const totalGastado = registers.reduce((sum, reg) => sum + reg.price, 0);
   const cantidadProductos = registers.length;
 
   return (
     <View style={styles.statsContainer}>
-      <View style={styles.statCard}>
+      <TouchableOpacity
+        style={styles.statCard}
+        onPress={onTotalGastadoPress}
+        activeOpacity={0.7}
+      >
         <Text style={styles.statLabel}>Total Gastado</Text>
         <Text style={styles.statValue}>${totalGastado.toFixed(2)}</Text>
-      </View>
+        <Text style={styles.tapHint}>Toca para ver más →</Text>
+      </TouchableOpacity>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Productos Comprados</Text>
         <Text style={styles.statValueCount}>{cantidadProductos}</Text>
@@ -75,5 +82,11 @@ const styles = StyleSheet.create({
     ...Typography.h2,
     fontWeight: "700",
     color: Colors.primary,
+  },
+  tapHint: {
+    ...Typography.small,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+    fontStyle: "italic",
   },
 });
