@@ -46,7 +46,11 @@ export const API_ENDPOINTS = {
   REGISTERS: `${API_BASE_URL}/api/registers`,
   REGISTERS_MINE: `${API_BASE_URL}/api/registers/mine`,
   REGISTERS_COMPANY: `${API_BASE_URL}/api/registers/company`,
+  REGISTERS_COMPANY_BY_ENV: (environmentId: number) =>
+    `${API_BASE_URL}/api/registers/company?environmentId=${environmentId}`,
   STATISTICS_COMPANY: `${API_BASE_URL}/api/statistics/company`,
+  STATISTICS_COMPANY_BY_ENV: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/company?environmentId=${environmentId}`,
   STATISTICS_CLIENT: `${API_BASE_URL}/api/statistics/client`,
   STATISTICS_CLIENT_BY_ENV: (environmentId: number) =>
     `${API_BASE_URL}/api/statistics/client?environmentId=${environmentId}`,

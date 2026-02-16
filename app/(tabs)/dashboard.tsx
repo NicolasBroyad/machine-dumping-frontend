@@ -3,13 +3,13 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BarcodeScannerModal from "../../componentes/BarcodeScannerModal";
@@ -29,11 +29,11 @@ import RankingCliente from "../../componentes/modulos/RankingCliente";
 import { API_ENDPOINTS } from "../../config/api";
 
 import {
-  BorderRadius,
-  Colors,
-  Shadows,
-  Spacing,
-  Typography,
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
 } from "../../constants/theme";
 
 export default function Dashboard() {
@@ -98,7 +98,7 @@ export default function Dashboard() {
     } | null;
   } | null>(null);
 
-  // Estado para el selector de entornos
+  // Estado para el selector de entornos (Clientes)
   const [selectedEnvironment, setSelectedEnvironment] = useState<{
     id: number;
     name: string;
@@ -106,6 +106,13 @@ export default function Dashboard() {
     points?: number;
   } | null>(null);
   const [envDropdownOpen, setEnvDropdownOpen] = useState(false);
+
+  // Estado para el selector de entornos (Companies)
+  const [selectedCompanyEnv, setSelectedCompanyEnv] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [companyEnvDropdownOpen, setCompanyEnvDropdownOpen] = useState(false);
 
   const fetchMyEnvironments = useCallback(async () => {
     try {
@@ -116,13 +123,17 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         setMyEnvironments(data || []);
+        // Seleccionar el primer entorno automáticamente si no hay ninguno seleccionado
+        if (data && data.length > 0 && !selectedCompanyEnv) {
+          setSelectedCompanyEnv(data[0]);
+        }
       } else {
         console.warn("No se pudieron obtener environments");
       }
     } catch (e) {
       console.error("Error fetching environments", e);
     }
-  }, []);
+  }, [selectedCompanyEnv]);
 
   const fetchJoinedEnvironments = useCallback(async () => {
     try {
@@ -163,10 +174,13 @@ export default function Dashboard() {
     }
   }, []);
 
-  const fetchCompanyRegisters = useCallback(async () => {
+  const fetchCompanyRegisters = useCallback(async (environmentId?: number) => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const res = await fetch(API_ENDPOINTS.REGISTERS_COMPANY, {
+      const url = environmentId
+        ? API_ENDPOINTS.REGISTERS_COMPANY_BY_ENV(environmentId)
+        : API_ENDPOINTS.REGISTERS_COMPANY;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -180,10 +194,13 @@ export default function Dashboard() {
     }
   }, []);
 
-  const fetchCompanyStatistics = useCallback(async () => {
+  const fetchCompanyStatistics = useCallback(async (environmentId?: number) => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const res = await fetch(API_ENDPOINTS.STATISTICS_COMPANY, {
+      const url = environmentId
+        ? API_ENDPOINTS.STATISTICS_COMPANY_BY_ENV(environmentId)
+        : API_ENDPOINTS.STATISTICS_COMPANY;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -220,27 +237,32 @@ export default function Dashboard() {
   useEffect(() => {
     if (role === 2) {
       fetchMyEnvironments();
-      fetchCompanyRegisters();
-      fetchCompanyStatistics();
+      // Los registros y estadísticas se cargarán cuando selectedCompanyEnv se establezca
     } else if (role === 1) {
       fetchJoinedEnvironments();
       fetchMyRegisters();
     }
-  }, [
-    role,
-    fetchMyEnvironments,
-    fetchJoinedEnvironments,
-    fetchMyRegisters,
-    fetchCompanyRegisters,
-    fetchCompanyStatistics,
-  ]);
+  }, [role, fetchMyEnvironments, fetchJoinedEnvironments, fetchMyRegisters]);
 
-  // Recargar estadísticas cuando cambie el entorno seleccionado
+  // Recargar estadísticas cuando cambie el entorno seleccionado (Cliente)
   useEffect(() => {
     if (role === 1 && selectedEnvironment) {
       fetchClientStatistics(selectedEnvironment.id);
     }
   }, [selectedEnvironment, role, fetchClientStatistics]);
+
+  // Recargar estadísticas y registros cuando cambie el entorno seleccionado (Company)
+  useEffect(() => {
+    if (role === 2 && selectedCompanyEnv) {
+      console.log(
+        "Cambiando a entorno:",
+        selectedCompanyEnv.id,
+        selectedCompanyEnv.name,
+      );
+      fetchCompanyRegisters(selectedCompanyEnv.id);
+      fetchCompanyStatistics(selectedCompanyEnv.id);
+    }
+  }, [selectedCompanyEnv?.id, role]);
 
   // Refrescar registros cuando la pantalla vuelva a estar en foco
   useFocusEffect(
@@ -250,9 +272,9 @@ export default function Dashboard() {
         if (selectedEnvironment) {
           fetchClientStatistics(selectedEnvironment.id);
         }
-      } else if (role === 2) {
-        fetchCompanyRegisters();
-        fetchCompanyStatistics();
+      } else if (role === 2 && selectedCompanyEnv) {
+        fetchCompanyRegisters(selectedCompanyEnv.id);
+        fetchCompanyStatistics(selectedCompanyEnv.id);
       }
     }, [
       role,
@@ -261,6 +283,7 @@ export default function Dashboard() {
       fetchCompanyRegisters,
       fetchCompanyStatistics,
       selectedEnvironment,
+      selectedCompanyEnv,
     ]),
   );
 
@@ -292,8 +315,7 @@ export default function Dashboard() {
   const handleConfirmProduct = async (name: string, price: string) => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const environmentId =
-        myEnvironments.length > 0 ? myEnvironments[0].id : 0;
+      const environmentId = selectedCompanyEnv?.id || 0;
 
       const res = await fetch(API_ENDPOINTS.PRODUCTS, {
         method: "POST",
@@ -326,10 +348,11 @@ export default function Dashboard() {
   };
 
   const handleCreateEntorno = (env: { id: number; name: string }) => {
-    // Cuando el modal retorna, refrescar la lista y seleccionar el creado
+    // Cuando el modal retorna, refrescar la lista y seleccionar el nuevo entorno
     setModalVisible(false);
-    // Si create retorna un objeto completo, refrescamos
     fetchMyEnvironments();
+    // Seleccionar el nuevo entorno creado
+    setSelectedCompanyEnv(env);
     Alert.alert("Entorno creado", `Nombre: ${env.name}`);
   };
 
@@ -398,13 +421,64 @@ export default function Dashboard() {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Dashboard</Text>
 
-        {/* Card de entorno para Companies */}
+        {/* Selector de entornos para Companies */}
         {role === 2 && myEnvironments.length > 0 && (
-          <EntornoCard
-            environmentName={myEnvironments[0].name}
-            onCargarProductos={() => setCargarProductosVisible(true)}
-            onEditarProductos={() => setEditarProductosVisible(true)}
-          />
+          <View style={{ width: "100%" }}>
+            <Text style={styles.sectionTitle}>
+              Mis Entornos ({myEnvironments.length})
+            </Text>
+
+            {/* Selector desplegable */}
+            <Pressable
+              style={styles.envSelector}
+              onPress={() => setCompanyEnvDropdownOpen(!companyEnvDropdownOpen)}
+            >
+              <View style={styles.envSelectorContent}>
+                <Text style={styles.envSelectorText}>
+                  {selectedCompanyEnv?.name || "Seleccionar entorno"}
+                </Text>
+              </View>
+              <Text style={styles.dropdownArrow}>
+                {companyEnvDropdownOpen ? "▲" : "▼"}
+              </Text>
+            </Pressable>
+
+            {/* Lista desplegable de entornos */}
+            {companyEnvDropdownOpen && (
+              <View style={styles.envDropdown}>
+                <ScrollView
+                  style={styles.envDropdownScroll}
+                  nestedScrollEnabled
+                >
+                  {myEnvironments.map((env) => (
+                    <Pressable
+                      key={env.id}
+                      style={[
+                        styles.envDropdownItem,
+                        selectedCompanyEnv?.id === env.id &&
+                          styles.envDropdownItemSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedCompanyEnv(env);
+                        setCompanyEnvDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={styles.envDropdownItemName}>{env.name}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Card del entorno seleccionado */}
+            {selectedCompanyEnv && !companyEnvDropdownOpen && (
+              <EntornoCard
+                environmentName={selectedCompanyEnv.name}
+                onCargarProductos={() => setCargarProductosVisible(true)}
+                onEditarProductos={() => setEditarProductosVisible(true)}
+              />
+            )}
+          </View>
         )}
 
         {/* Estadísticas para Companies */}
@@ -563,19 +637,21 @@ export default function Dashboard() {
 
         {role === 2 ? (
           <>
-            {/* Solo mostrar el botón si no hay entornos creados */}
-            {myEnvironments.length === 0 && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.button,
-                  pressed && styles.buttonPressed,
-                ]}
-                onPress={handleCrear}
-                accessibilityLabel="Crear entorno"
-              >
-                <Text style={styles.buttonText}>Crear entorno</Text>
-              </Pressable>
-            )}
+            {/* Botón para crear más entornos */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleCrear}
+              accessibilityLabel="Crear entorno"
+            >
+              <Text style={styles.buttonText}>
+                {myEnvironments.length === 0
+                  ? "Crear entorno"
+                  : "+ Nuevo entorno"}
+              </Text>
+            </Pressable>
             <CrearEntornoModal
               visible={modalVisible}
               onClose={() => setModalVisible(false)}
@@ -584,24 +660,16 @@ export default function Dashboard() {
             <CargarProductosModal
               visible={cargarProductosVisible}
               onClose={() => setCargarProductosVisible(false)}
-              environmentName={
-                myEnvironments.length > 0 ? myEnvironments[0].name : ""
-              }
-              environmentId={
-                myEnvironments.length > 0 ? myEnvironments[0].id : 0
-              }
+              environmentName={selectedCompanyEnv?.name || ""}
+              environmentId={selectedCompanyEnv?.id || 0}
               onOpenScanner={handleOpenScanner}
               refreshTrigger={refreshTrigger}
             />
             <EditarProductosModal
               visible={editarProductosVisible}
               onClose={() => setEditarProductosVisible(false)}
-              environmentName={
-                myEnvironments.length > 0 ? myEnvironments[0].name : ""
-              }
-              environmentId={
-                myEnvironments.length > 0 ? myEnvironments[0].id : 0
-              }
+              environmentName={selectedCompanyEnv?.name || ""}
+              environmentId={selectedCompanyEnv?.id || 0}
             />
             <BarcodeScannerModal
               visible={scannerVisible}
