@@ -354,10 +354,20 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        Alert.alert("Producto creado", `${name} ha sido agregado al entorno`);
         setConfirmarVisible(false);
-        setCargarProductosVisible(true); // Volver a abrir el modal de productos
-        setRefreshTrigger((prev) => prev + 1); // Trigger refresh
+        Alert.alert(
+          "Producto creado",
+          `${name} ha sido agregado al entorno`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setCargarProductosVisible(true);
+                setRefreshTrigger((prev) => prev + 1);
+              },
+            },
+          ],
+        );
       } else {
         Alert.alert("Error", data.message || "No se pudo crear el producto");
       }
