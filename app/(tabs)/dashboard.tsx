@@ -69,6 +69,7 @@ export default function Dashboard() {
     {
       id: number;
       datetime: string;
+      price: number;
       product: { name: string; price: number };
       environment: { name: string };
     }[]
@@ -77,6 +78,7 @@ export default function Dashboard() {
     {
       id: number;
       datetime: string;
+      price: number;
       product: { name: string; price: number };
       client: { user: { username: string; email: string } };
     }[]

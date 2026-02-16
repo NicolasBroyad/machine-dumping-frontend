@@ -1,10 +1,17 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
+} from "../../constants/theme";
 
 interface Register {
   id: number;
   datetime: string;
+  price: number; // Precio histórico al momento de la compra
   product: {
     name: string;
     price: number;
@@ -15,7 +22,9 @@ interface ListaComprasClienteProps {
   registers: Register[];
 }
 
-export default function ListaComprasCliente({ registers }: ListaComprasClienteProps) {
+export default function ListaComprasCliente({
+  registers,
+}: ListaComprasClienteProps) {
   if (registers.length === 0) {
     return null;
   }
@@ -23,12 +32,15 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
   // Calcular altura dinámica: cada item mide ~90px, máximo 4 items visibles
   const itemHeight = 90;
   const maxVisibleItems = 4;
-  const dynamicHeight = Math.min(registers.length * itemHeight, maxVisibleItems * itemHeight);
+  const dynamicHeight = Math.min(
+    registers.length * itemHeight,
+    maxVisibleItems * itemHeight,
+  );
 
   return (
     <View style={styles.registersCard}>
       <Text style={styles.registersTitle}>Mis Compras Registradas</Text>
-      <ScrollView 
+      <ScrollView
         style={[styles.scrollView, { maxHeight: dynamicHeight }]}
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={true}
@@ -36,18 +48,20 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
         {registers.map((item) => (
           <View key={item.id} style={styles.registerItem}>
             <View style={styles.registerInfo}>
-              <Text style={styles.registerProductName}>{item.product.name}</Text>
+              <Text style={styles.registerProductName}>
+                {item.product.name}
+              </Text>
               <Text style={styles.registerDate}>
-                {new Date(item.datetime).toLocaleDateString('es-ES', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(item.datetime).toLocaleDateString("es-ES", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </Text>
             </View>
-            <Text style={styles.registerPrice}>${item.product.price.toFixed(2)}</Text>
+            <Text style={styles.registerPrice}>${item.price.toFixed(2)}</Text>
           </View>
         ))}
       </ScrollView>
@@ -57,7 +71,7 @@ export default function ListaComprasCliente({ registers }: ListaComprasClientePr
 
 const styles = StyleSheet.create({
   registersCard: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -73,9 +87,9 @@ const styles = StyleSheet.create({
     // La altura se establece dinámicamente en el componente
   },
   registerItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     backgroundColor: Colors.surface,

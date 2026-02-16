@@ -1,10 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import {
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
+} from "../../constants/theme";
 
 interface Register {
   id: number;
   datetime: string;
+  price: number; // Precio histórico al momento de la compra
   product: {
     name: string;
     price: number;
@@ -15,8 +22,10 @@ interface EstadisticasClienteProps {
   registers: Register[];
 }
 
-export default function EstadisticasCliente({ registers }: EstadisticasClienteProps) {
-  const totalGastado = registers.reduce((sum, reg) => sum + reg.product.price, 0);
+export default function EstadisticasCliente({
+  registers,
+}: EstadisticasClienteProps) {
+  const totalGastado = registers.reduce((sum, reg) => sum + reg.price, 0);
   const cantidadProductos = registers.length;
 
   return (
@@ -35,8 +44,8 @@ export default function EstadisticasCliente({ registers }: EstadisticasClientePr
 
 const styles = StyleSheet.create({
   statsContainer: {
-    width: '100%',
-    flexDirection: 'row',
+    width: "100%",
+    flexDirection: "row",
     gap: 10,
     marginBottom: Spacing.md,
   },
@@ -45,7 +54,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
-    alignItems: 'center',
+    alignItems: "center",
     ...Shadows.md,
     borderLeftWidth: 4,
     borderLeftColor: Colors.primary,
@@ -54,17 +63,17 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   statValue: {
     ...Typography.h2,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.success,
   },
   statValueCount: {
     ...Typography.h2,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.primary,
   },
 });
