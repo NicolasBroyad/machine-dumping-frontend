@@ -44,10 +44,7 @@ export default function RankingCliente({
 
   const content = (
     <>
-      <View style={styles.labelRow}>
-        <Text style={styles.label}>TU POSICIÓN EN EL RANKING</Text>
-        {onPress && <Text style={styles.tapHint}>Toca para ver más →</Text>}
-      </View>
+      <Text style={styles.label}>TU POSICIÓN EN EL RANKING</Text>
       <View style={styles.rankContainer}>
         <Text style={[styles.rankNumber, { color: rankColor }]}>
           {getOrdinalSuffix(ranking.posicion)}
@@ -58,6 +55,7 @@ export default function RankingCliente({
         Total gastado:{" "}
         <Text style={styles.totalAmount}>${ranking.total.toFixed(2)}</Text>
       </Text>
+      {onPress && <Text style={styles.tapHint}>Toca para ver más →</Text>}
     </>
   );
 
@@ -95,22 +93,20 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     transform: [{ scale: 0.98 }],
   },
-  labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
-  },
+
   label: {
     ...Typography.small,
     color: Colors.textSecondary,
     fontWeight: "600",
     letterSpacing: 1,
+    marginBottom: Spacing.sm,
   },
   tapHint: {
     ...Typography.small,
-    color: Colors.primary,
-    fontWeight: "500",
+    color: Colors.textSecondary,
+    textAlign: "right",
+    marginTop: Spacing.sm,
+    fontStyle: "italic",
   },
   rankContainer: {
     flexDirection: "row",

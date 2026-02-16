@@ -55,7 +55,7 @@ export default function EstadisticasCompany({
           <Text style={styles.statValueGreen}>
             ${statistics.totalRecaudado.toFixed(2)}
           </Text>
-          <Text style={styles.tapHint}>Ver más →</Text>
+          <Text style={styles.tapHint}>Toca para ver más →</Text>
         </TouchableOpacity>
         <View style={[styles.statCard, styles.cardBlue]}>
           <Text style={styles.statLabel}>Productos Vendidos</Text>
@@ -84,7 +84,7 @@ export default function EstadisticasCompany({
               ${statistics.productoMasComprado.price.toFixed(2)} c/u
             </Text>
           </View>
-          <Text style={styles.tapHint}>Toca para ver ranking →</Text>
+          <Text style={styles.tapHint}>Toca para ver más →</Text>
         </TouchableOpacity>
       )}
 
@@ -107,7 +107,7 @@ export default function EstadisticasCompany({
               Total: ${statistics.mayorComprador.total.toFixed(2)}
             </Text>
           </View>
-          <Text style={styles.tapHint}>Toca para ver ranking →</Text>
+          <Text style={styles.tapHint}>Toca para ver más →</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   statValueGreen: {
-    ...Typography.h2,
+    ...Typography.h4,
     color: Colors.success,
     fontWeight: "700",
   },
   statValueBlue: {
-    ...Typography.h2,
+    ...Typography.h4,
     color: Colors.primary,
     fontWeight: "700",
   },

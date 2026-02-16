@@ -74,18 +74,19 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   statValue: {
-    ...Typography.h2,
+    ...Typography.h4,
     fontWeight: "700",
     color: Colors.success,
   },
   statValueCount: {
-    ...Typography.h2,
+    ...Typography.h4,
     fontWeight: "700",
     color: Colors.primary,
   },
   tapHint: {
     ...Typography.small,
     color: Colors.textSecondary,
+    textAlign: "right",
     marginTop: Spacing.sm,
     fontStyle: "italic",
   },
