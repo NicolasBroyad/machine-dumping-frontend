@@ -1,6 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography, Shadows } from '../../constants/theme';
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    BorderRadius,
+    Colors,
+    Shadows,
+    Spacing,
+    Typography,
+} from "../../constants/theme";
 
 interface CompanyStatistics {
   totalRecaudado: number;
@@ -19,9 +25,17 @@ interface CompanyStatistics {
 
 interface EstadisticasCompanyProps {
   statistics: CompanyStatistics | null;
+  onTotalRecaudadoPress?: () => void;
+  onProductoMasCompradoPress?: () => void;
+  onMayorCompradorPress?: () => void;
 }
 
-export default function EstadisticasCompany({ statistics }: EstadisticasCompanyProps) {
+export default function EstadisticasCompany({
+  statistics,
+  onTotalRecaudadoPress,
+  onProductoMasCompradoPress,
+  onMayorCompradorPress,
+}: EstadisticasCompanyProps) {
   if (!statistics) {
     return null;
   }
@@ -29,24 +43,39 @@ export default function EstadisticasCompany({ statistics }: EstadisticasCompanyP
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Estadísticas del Entorno</Text>
-      
+
       {/* Fila 1: Total Recaudado y Cantidad Vendidos */}
       <View style={styles.row}>
-        <View style={[styles.statCard, styles.cardGreen]}>
+        <TouchableOpacity
+          style={[styles.statCard, styles.cardGreen]}
+          onPress={onTotalRecaudadoPress}
+          activeOpacity={0.7}
+        >
           <Text style={styles.statLabel}>Total Recaudado</Text>
-          <Text style={styles.statValueGreen}>${statistics.totalRecaudado.toFixed(2)}</Text>
-        </View>
+          <Text style={styles.statValueGreen}>
+            ${statistics.totalRecaudado.toFixed(2)}
+          </Text>
+          <Text style={styles.tapHint}>Ver más →</Text>
+        </TouchableOpacity>
         <View style={[styles.statCard, styles.cardBlue]}>
           <Text style={styles.statLabel}>Productos Vendidos</Text>
-          <Text style={styles.statValueBlue}>{statistics.cantidadVendidos}</Text>
+          <Text style={styles.statValueBlue}>
+            {statistics.cantidadVendidos}
+          </Text>
         </View>
       </View>
 
       {/* Fila 2: Producto más comprado */}
       {statistics.productoMasComprado && (
-        <View style={[styles.fullCard, styles.cardOrange]}>
+        <TouchableOpacity
+          style={[styles.fullCard, styles.cardOrange]}
+          onPress={onProductoMasCompradoPress}
+          activeOpacity={0.7}
+        >
           <Text style={styles.fullCardLabel}>PRODUCTO MÁS COMPRADO</Text>
-          <Text style={styles.fullCardTitle}>{statistics.productoMasComprado.name}</Text>
+          <Text style={styles.fullCardTitle}>
+            {statistics.productoMasComprado.name}
+          </Text>
           <View style={styles.detailRow}>
             <Text style={styles.detailText}>
               {statistics.productoMasComprado.count} ventas
@@ -55,14 +84,21 @@ export default function EstadisticasCompany({ statistics }: EstadisticasCompanyP
               ${statistics.productoMasComprado.price.toFixed(2)} c/u
             </Text>
           </View>
-        </View>
+          <Text style={styles.tapHint}>Toca para ver ranking →</Text>
+        </TouchableOpacity>
       )}
 
       {/* Fila 3: Mayor comprador */}
       {statistics.mayorComprador && (
-        <View style={[styles.fullCard, styles.cardPurple]}>
+        <TouchableOpacity
+          style={[styles.fullCard, styles.cardPurple]}
+          onPress={onMayorCompradorPress}
+          activeOpacity={0.7}
+        >
           <Text style={styles.fullCardLabel}>MAYOR COMPRADOR</Text>
-          <Text style={styles.fullCardTitle}>{statistics.mayorComprador.username}</Text>
+          <Text style={styles.fullCardTitle}>
+            {statistics.mayorComprador.username}
+          </Text>
           <View style={styles.detailRow}>
             <Text style={styles.detailText}>
               {statistics.mayorComprador.compras} compras
@@ -71,7 +107,8 @@ export default function EstadisticasCompany({ statistics }: EstadisticasCompanyP
               Total: ${statistics.mayorComprador.total.toFixed(2)}
             </Text>
           </View>
-        </View>
+          <Text style={styles.tapHint}>Toca para ver ranking →</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -79,17 +116,17 @@ export default function EstadisticasCompany({ statistics }: EstadisticasCompanyP
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     marginBottom: Spacing.md,
   },
   sectionTitle: {
     ...Typography.h4,
     color: Colors.textPrimary,
     marginBottom: Spacing.md,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
   },
@@ -98,7 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
-    alignItems: 'center',
+    alignItems: "center",
     ...Shadows.md,
     borderLeftWidth: 4,
   },
@@ -118,21 +155,21 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   statValueGreen: {
     ...Typography.h2,
     color: Colors.success,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   statValueBlue: {
     ...Typography.h2,
     color: Colors.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   fullCard: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -144,19 +181,19 @@ const styles = StyleSheet.create({
     ...Typography.small,
     color: Colors.textSecondary,
     marginBottom: Spacing.xs,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 1,
   },
   fullCardTitle: {
     ...Typography.h4,
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   detailText: {
     ...Typography.body,
@@ -165,5 +202,12 @@ const styles = StyleSheet.create({
   detailPrice: {
     ...Typography.bodyBold,
     color: Colors.success,
+  },
+  tapHint: {
+    ...Typography.small,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+    fontStyle: "italic",
+    textAlign: "right",
   },
 });

@@ -26,7 +26,10 @@ import ListaComprasCompany from "../../componentes/modulos/ListaComprasCompany";
 import ProductoFavorito from "../../componentes/modulos/ProductoFavorito";
 import RankingCliente from "../../componentes/modulos/RankingCliente";
 import ProductoFavoritoDetalleModal from "../../componentes/ProductoFavoritoDetalleModal";
+import RankingClientesCompanyModal from "../../componentes/RankingClientesCompanyModal";
 import RankingDetalleModal from "../../componentes/RankingDetalleModal";
+import RankingProductosCompanyModal from "../../componentes/RankingProductosCompanyModal";
+import RecaudadoPorDiaModal from "../../componentes/RecaudadoPorDiaModal";
 import TotalGastadoDetalleModal from "../../componentes/TotalGastadoDetalleModal";
 import UnirseEntornoModal from "../../componentes/UnirseEntornoModal";
 import { API_ENDPOINTS } from "../../config/api";
@@ -308,6 +311,12 @@ export default function Dashboard() {
     useState(false);
   const [totalGastadoDetalleVisible, setTotalGastadoDetalleVisible] =
     useState(false);
+  // Estados para modales de Company
+  const [rankingClientesCompanyVisible, setRankingClientesCompanyVisible] =
+    useState(false);
+  const [rankingProductosCompanyVisible, setRankingProductosCompanyVisible] =
+    useState(false);
+  const [recaudadoPorDiaVisible, setRecaudadoPorDiaVisible] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -493,8 +502,32 @@ export default function Dashboard() {
 
         {/* Estadísticas para Companies */}
         {role === 2 && companyStatistics && (
-          <EstadisticasCompany statistics={companyStatistics} />
+          <EstadisticasCompany
+            statistics={companyStatistics}
+            onTotalRecaudadoPress={() => setRecaudadoPorDiaVisible(true)}
+            onProductoMasCompradoPress={() =>
+              setRankingProductosCompanyVisible(true)
+            }
+            onMayorCompradorPress={() => setRankingClientesCompanyVisible(true)}
+          />
         )}
+
+        {/* Modales para Company */}
+        <RankingClientesCompanyModal
+          visible={rankingClientesCompanyVisible}
+          onClose={() => setRankingClientesCompanyVisible(false)}
+          environmentId={selectedCompanyEnv?.id || null}
+        />
+        <RankingProductosCompanyModal
+          visible={rankingProductosCompanyVisible}
+          onClose={() => setRankingProductosCompanyVisible(false)}
+          environmentId={selectedCompanyEnv?.id || null}
+        />
+        <RecaudadoPorDiaModal
+          visible={recaudadoPorDiaVisible}
+          onClose={() => setRecaudadoPorDiaVisible(false)}
+          environmentId={selectedCompanyEnv?.id || null}
+        />
 
         {/* Selector de entornos para Clientes */}
         {role === 1 && joinedEnvironments.length > 0 && (

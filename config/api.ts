@@ -60,4 +60,11 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/api/statistics/productos-favoritos/${environmentId}`,
   STATISTICS_GASTOS_POR_DIA: (environmentId: number) =>
     `${API_BASE_URL}/api/statistics/gastos-por-dia/${environmentId}`,
+  // Endpoints para vendedor
+  STATISTICS_COMPANY_RANKING_CLIENTES: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/company/ranking-clientes/${environmentId}`,
+  STATISTICS_COMPANY_RANKING_PRODUCTOS: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/company/ranking-productos/${environmentId}`,
+  STATISTICS_COMPANY_RECAUDADO_POR_DIA: (environmentId: number) =>
+    `${API_BASE_URL}/api/statistics/company/recaudado-por-dia/${environmentId}`,
 };
