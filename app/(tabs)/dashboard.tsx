@@ -355,19 +355,15 @@ export default function Dashboard() {
 
       if (res.ok) {
         setConfirmarVisible(false);
-        Alert.alert(
-          "Producto creado",
-          `${name} ha sido agregado al entorno`,
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                setCargarProductosVisible(true);
-                setRefreshTrigger((prev) => prev + 1);
-              },
+        Alert.alert("Producto creado", `${name} ha sido agregado al entorno`, [
+          {
+            text: "OK",
+            onPress: () => {
+              setCargarProductosVisible(true);
+              setRefreshTrigger((prev) => prev + 1);
             },
-          ],
-        );
+          },
+        ]);
       } else {
         Alert.alert("Error", data.message || "No se pudo crear el producto");
       }
